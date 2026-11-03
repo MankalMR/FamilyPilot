@@ -1,4 +1,4 @@
-/* Family Pilot — Phase 0, mobile-first, plain CSS. No framework. */
+/* Family Pilot — Phase 1, mobile-first, plain CSS. No framework. */
 * { box-sizing: border-box; }
 body {
   margin: 0;
@@ -7,20 +7,51 @@ body {
   color: #1a1a1a;
 }
 main { max-width: 640px; margin: 0 auto; padding: 1rem; }
-h1 { font-size: 1.75rem; margin-bottom: 0.25rem; }
-h2 { font-size: 1.1rem; margin-top: 1.5rem; }
-button {
-  font-size: 1rem;
-  padding: 0.6rem 1rem;
-  border: 1px solid #333;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
+h1 { font-size: 1.75rem; margin: 0.25rem 0; }
+h2 { font-size: 1.15rem; margin-top: 1.5rem; }
+h3 { font-size: 1rem; margin: 1rem 0 0.25rem; }
+.sub { color: #555; margin: 0.25rem 0; }
+.tabs { display: flex; gap: 0.5rem; margin: 1rem 0; }
+.tab {
+  flex: 1; font-size: 1rem; padding: 0.6rem; border: 1px solid #333;
+  border-radius: 8px; background: #fff; cursor: pointer;
 }
+.tab.active { background: #1a1a1a; color: #fff; }
+button {
+  font-size: 1rem; padding: 0.55rem 0.9rem; border: 1px solid #333;
+  border-radius: 8px; background: #fff; cursor: pointer;
+}
+button.active { background: #1a1a1a; color: #fff; }
+.card {
+  border: 1px solid #ccc; border-radius: 10px; padding: 0.75rem;
+  margin: 0.5rem 0;
+}
+.card p { margin: 0.4rem 0; }
+.card .meta { display: block; color: #555; font-size: 0.9rem; }
+.card .note { color: #555; font-size: 0.95rem; }
+.card.done { opacity: 0.65; }
+.card.no-school { border-color: #b45309; background: #fff7ed; }
+.flag {
+  display: inline-block; margin-left: 0.5rem; padding: 0.1rem 0.5rem;
+  border-radius: 999px; background: #b45309; color: #fff; font-size: 0.85rem;
+}
+.card.empty { border-style: dashed; color: #555; }
+.plan-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+.plan-btn { font-size: 0.9rem; padding: 0.4rem 0.7rem; }
+.row-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+.row-actions button { font-size: 0.9rem; padding: 0.4rem 0.7rem; }
+.day-head { font-weight: 600; margin: 0.75rem 0 0; }
+form label { display: block; margin: 0.6rem 0; font-weight: 600; }
+form input, form select, form textarea {
+  display: block; width: 100%; font-size: 1rem; padding: 0.55rem;
+  border: 1px solid #999; border-radius: 8px; margin-top: 0.25rem;
+}
+form .check { font-weight: 400; }
+form .check input { display: inline; width: auto; }
+.hint { color: #555; font-size: 0.9rem; }
+#status { min-height: 1.5rem; color: #14532d; }
+#status.error { color: #991b1b; }
 pre {
-  background: #f2f2f2;
-  padding: 0.75rem;
-  border-radius: 8px;
-  overflow-x: auto;
-  white-space: pre-wrap;
+  background: #f2f2f2; padding: 0.75rem; border-radius: 8px;
+  overflow-x: auto; white-space: pre-wrap;
 }

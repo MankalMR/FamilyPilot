@@ -9,21 +9,88 @@
 </head>
 <body>
   <main>
-    <h1>Family Pilot</h1>
-    <p>Family school tracker — tasks and school lunch, shared by both parents.</p>
-    <p><strong>Phase 0:</strong> scaffold only. Pages + Functions routing is proven by the health check below. No tasks or lunch data yet — that lands in Phase 1.</p>
+    <header>
+      <h1>Family Pilot</h1>
+      <p class="sub">School tasks and school lunch, shared by both parents. Lunch only.</p>
+      <p id="today-line" class="sub"></p>
+    </header>
+
+    <nav class="tabs" aria-label="Views">
+      <button type="button" id="tab-today" class="tab active">Today</button>
+      <button type="button" id="tab-week" class="tab">Next 14 days</button>
+    </nav>
+
+    <p id="status" role="status"></p>
+
+    <section id="view-today">
+      <h2>Today</h2>
+      <div id="today-kids"></div>
+      <h3>Items due today or overdue</h3>
+      <div id="today-items"></div>
+    </section>
+
+    <section id="view-week" hidden>
+      <h2>Next 14 days</h2>
+      <label class="check"><input type="checkbox" id="show-done" /> Show done items</label>
+      <div id="week-kids"></div>
+      <h3>Items</h3>
+      <div id="week-items"></div>
+    </section>
+
+    <section>
+      <h2 id="item-form-title">Add an item</h2>
+      <form id="item-form">
+        <input type="hidden" id="item-id" />
+        <label>Child
+          <select id="item-child" required>
+            <option value="pia">Pia</option>
+            <option value="misha">Misha</option>
+          </select>
+        </label>
+        <label>Title <input id="item-title" required maxlength="500" /></label>
+        <label>Category
+          <select id="item-category" required>
+            <option value="test">Test</option>
+            <option value="homework">Homework</option>
+            <option value="project">Project</option>
+            <option value="form_to_sign">Form to sign</option>
+            <option value="event">Event</option>
+            <option value="no_school">No school</option>
+            <option value="heads_up">Heads up</option>
+          </select>
+        </label>
+        <label>Due date <input id="item-due-date" type="date" required /></label>
+        <label>Due time (optional) <input id="item-due-time" type="time" /></label>
+        <label>Details <textarea id="item-details" rows="3"></textarea></label>
+        <button type="submit" id="item-submit">Add item</button>
+        <button type="button" id="item-cancel" hidden>Cancel edit</button>
+      </form>
+    </section>
+
+    <section>
+      <h2 id="lunch-form-title">Add a lunch day</h2>
+      <form id="lunch-form">
+        <input type="hidden" id="lunch-id" />
+        <label>Child
+          <select id="lunch-child" required>
+            <option value="pia">Pia</option>
+            <option value="misha">Misha</option>
+          </select>
+        </label>
+        <label>Date <input id="lunch-date" type="date" required /></label>
+        <label>Menu <textarea id="lunch-menu" rows="3"></textarea></label>
+        <label class="check"><input type="checkbox" id="lunch-no-school" /> No school this day</label>
+        <label>Note <textarea id="lunch-note" rows="2"></textarea></label>
+        <p class="hint">Plan (school / pack) is set with the toggle buttons on each lunch card, not here. A monthly import never changes a plan you set.</p>
+        <button type="submit" id="lunch-submit">Add lunch day</button>
+        <button type="button" id="lunch-cancel" hidden>Cancel edit</button>
+      </form>
+    </section>
+
     <section>
       <h2>Health check</h2>
       <button id="health-btn" type="button">Check API</button>
       <pre id="health-out">Not checked yet.</pre>
-    </section>
-    <section>
-      <h2>Scope</h2>
-      <ul>
-        <li>Lunch only — no breakfast content, anywhere.</li>
-        <li>Mobile-first — this is primarily opened on phones.</li>
-        <li>Login is Cloudflare Access, not a password in this app.</li>
-      </ul>
     </section>
   </main>
   <script src="/app.js"></script>
