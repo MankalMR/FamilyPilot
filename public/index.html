@@ -48,6 +48,17 @@
       <div id="week-days"></div>
     </section>
 
+    <section id="view-history" hidden>
+      <h2>Notifications</h2>
+      <p class="sub">On iPhone, push only works if Family Pilot is added to the Home Screen and notifications are allowed. Enable it on each device you want notified.</p>
+      <button type="button" id="enable-push">Enable notifications on this device</button>
+      <button type="button" id="test-push">Send test push</button>
+      <h2>Notification history</h2>
+      <div id="history-notifications"></div>
+      <h2>Recent changes</h2>
+      <div id="history-recent"></div>
+    </section>
+
     <section id="view-add" hidden>
       <h2 id="item-form-title">Add an item</h2>
       <form id="item-form">
@@ -109,6 +120,7 @@
   <nav class="bottomnav" aria-label="Views">
     <button type="button" id="nav-today" class="on">Today</button>
     <button type="button" id="nav-week">Next 14 days</button>
+    <button type="button" id="nav-history">History</button>
     <button type="button" id="nav-add">+ Add</button>
   </nav>
 

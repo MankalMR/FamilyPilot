@@ -23,6 +23,9 @@ const PLANS = [
 ];
 let filterKid = "all";
 let showLunch = true; // checkbox: show lunch or not. Items are always shown.
+// VAPID public key for push subscriptions (spike). The matching private
+// JWK is a Pages secret (VAPID_PRIVATE_KEY), never in the repo.
+const VAPID_PUBLIC_KEY = "BE_-RxVbDf3GqCin_DzFOfzTAZgyKyyB8-6Gw6HnZYsx5wlSc04DVzM8wg1dpqSgulDTmA8hnNuMQM_YJFCF8yw";
 
 function etToday() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
@@ -57,12 +60,26 @@ function setStatus(msg, isError = false) {
   statusEl.className = isError ? "error" : "";
 }
 async function api(path, options) {
-  const res = await fetch(path, options);
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok || data.ok === false) {
-    throw new Error(data.error || `Request failed (${res.status})`);
+  // One retry for transient network failures only (e.g. a first-load
+  // "Failed to fetch" that succeeds after a reload). API errors are
+  // not retried — they are real responses, not network hiccups.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch(path, options);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.ok === false) {
+        throw new Error(data.error || `Request failed (${res.status})`);
+      }
+      return data;
+    } catch (err) {
+      const isNetwork = err instanceof TypeError || /Failed to fetch|NetworkError/i.test(err.message);
+      if (isNetwork && attempt === 0) {
+        await new Promise((r) => setTimeout(r, 800));
+        continue;
+      }
+      throw err;
+    }
   }
-  return data;
 }
 
 let items = [];
@@ -169,11 +186,82 @@ function render() {
 }
 
 function showView(name) {
-  for (const v of ["today", "week", "add"]) {
+  for (const v of ["today", "week", "history", "add"]) {
     document.getElementById("view-" + v).hidden = v !== name;
     document.getElementById("nav-" + v).classList.toggle("on", v === name);
   }
+  if (name === "history") loadHistory();
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function fmtDateTimeET(text) {
+  if (!text) return "";
+  const d = new Date(String(text).replace(" ", "T") + "Z");
+  if (Number.isNaN(d.getTime())) return esc(text);
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/New_York",
+  }).format(d);
+}
+function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replaceAll("-", "+").replaceAll("_", "/");
+  const raw = atob(base64);
+  return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+}
+async function loadHistory() {
+  const notifEl = document.getElementById("history-notifications");
+  const recentEl = document.getElementById("history-recent");
+  try {
+    const data = await api("/api/notifications");
+    notifEl.innerHTML = data.notifications.length
+      ? data.notifications.map((n) => `<div class="card"><div><span class="pill">${esc(n.event_type)}</span><span class="title">${esc(n.title)}</span></div><span class="meta">${fmtDateTimeET(n.created_at)} · to ${esc(n.recipient || "all")} · ${n.sent ? "sent" : "not sent"}${n.actor ? " · by " + actorName(n.actor) : ""}</span>${n.body ? `<p>${esc(n.body)}</p>` : ""}</div>`).join("")
+      : "<p>No notifications sent yet. Enable notifications below, then send a test push — it will appear here.</p>";
+    recentEl.innerHTML = data.recent_changes.length
+      ? data.recent_changes.map((r) => r.kind === "item"
+        ? `<div class="card"><div><span class="title">${esc(r.title)}</span></div><span class="meta">Item · ${esc(r.child)} · ${esc(r.status)} · due ${fmtDate(r.due_date)} · ${fmtDateTimeET(r.updated_at)}</span></div>`
+        : `<div class="card"><div><span class="title">${esc(r.child)} lunch · ${fmtDate(r.date)}</span></div><span class="meta">Lunch · plan ${esc(r.plan)}${r.no_school ? " · no school" : ""} · ${fmtDateTimeET(r.updated_at)}</span></div>`).join("")
+      : "<p>No recent changes yet.</p>";
+  } catch (err) {
+    notifEl.innerHTML = "<p>Could not load history: " + esc(err.message) + "</p>";
+  }
+}
+async function enableNotifications() {
+  try {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      setStatus("Push is not supported in this browser. On iPhone, add Family Pilot to the Home Screen first.", true);
+      return;
+    }
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      setStatus("Notification permission was not granted.", true);
+      return;
+    }
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+    });
+    const subJson = sub.toJSON();
+    await api("/api/push/subscribe", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ endpoint: subJson.endpoint, keys: subJson.keys }),
+    });
+    setStatus("Notifications enabled on this device.");
+  } catch (err) {
+    setStatus("Could not enable notifications: " + err.message, true);
+  }
+}
+async function sendTestPush() {
+  try {
+    const data = await api("/api/push/send", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ test: true, title: "Family Pilot test push", body: "Test push — if you see this notification, push works on this device." }),
+    });
+    setStatus(`Test push sent: ${data.sent} sent, ${data.failed} failed, ${data.pruned} pruned.`);
+    await loadHistory();
+  } catch (err) {
+    setStatus("Test push failed: " + err.message, true);
+  }
 }
 
 function wireCardActions(root) {
@@ -219,7 +307,22 @@ function wireCardActions(root) {
         showView("add");
         return;
       } else if (btn.dataset.deleteItem) {
-        if (!confirm("Delete this item?")) return;
+        // Two-tap confirm, not native confirm(). Native confirm() is
+        // auto-dismissed as Cancel in automated browsers and is
+        // unreliable in PWA standalone mode — that made Delete look
+        // dead: no dialog, no error, no change. First tap arms the
+        // button visibly; second tap within 3s actually deletes.
+        if (btn.dataset.confirming !== "1") {
+          btn.dataset.confirming = "1";
+          btn.textContent = "Tap again to delete";
+          btn.classList.add("danger");
+          setTimeout(() => {
+            btn.dataset.confirming = "";
+            btn.textContent = "Delete";
+            btn.classList.remove("danger");
+          }, 3000);
+          return;
+        }
         await api(`/api/items/${btn.dataset.deleteItem}`, { method: "DELETE" });
         setStatus("Item deleted.");
       } else if (btn.dataset.editLunch) {
@@ -238,9 +341,21 @@ function wireCardActions(root) {
         showView("add");
         return;
       } else if (btn.dataset.deleteLunch) {
-        if (!confirm("Delete this lunch day? A future import can recreate it, but its plan will be undecided.")) return;
+        // Same two-tap pattern as item delete (see above) — lunch
+        // delete shared the native confirm() problem.
+        if (btn.dataset.confirming !== "1") {
+          btn.dataset.confirming = "1";
+          btn.textContent = "Tap again to delete";
+          btn.classList.add("danger");
+          setTimeout(() => {
+            btn.dataset.confirming = "";
+            btn.textContent = "Delete";
+            btn.classList.remove("danger");
+          }, 3000);
+          return;
+        }
         await api(`/api/lunch/${btn.dataset.deleteLunch}`, { method: "DELETE" });
-        setStatus("Lunch day deleted.");
+        setStatus("Lunch day deleted. A future import can recreate it, but its plan will be undecided.");
       } else {
         return;
       }
@@ -265,7 +380,10 @@ async function load() {
 
 document.getElementById("nav-today").addEventListener("click", () => showView("today"));
 document.getElementById("nav-week").addEventListener("click", () => showView("week"));
+document.getElementById("nav-history").addEventListener("click", () => showView("history"));
 document.getElementById("nav-add").addEventListener("click", () => showView("add"));
+document.getElementById("enable-push").addEventListener("click", enableNotifications);
+document.getElementById("test-push").addEventListener("click", sendTestPush);
 document.getElementById("show-done").addEventListener("change", render);
 
 function setFilter(kid) {
@@ -373,6 +491,9 @@ document.getElementById("health-btn").addEventListener("click", async () => {
 });
 
 wireCardActions(document.body);
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").catch(() => {});
+}
 document.getElementById("item-due-date").value = etToday();
 document.getElementById("lunch-date").value = etToday();
 load().catch((err) => setStatus("Could not load data: " + err.message, true));

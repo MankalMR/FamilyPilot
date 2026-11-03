@@ -57,6 +57,7 @@ button.active { background: var(--ink); color: #fff; }
 .plan-btn { font-size: 0.9rem; padding: 0.4rem 0.7rem; }
 .row-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem; }
 .row-actions button { font-size: 0.9rem; padding: 0.4rem 0.7rem; }
+.row-actions button.danger { background: #FEE2E2; color: #991B1B; border-color: #991B1B; font-weight: 700; }
 .day-head { font-weight: 800; margin: 1.25rem 0 0; }
 .day-head span { color: var(--muted); font-weight: 600; }
 form label { display: block; margin: 0.6rem 0; font-weight: 600; }
@@ -68,7 +69,7 @@ form .check input { display: inline; width: auto; }
 #status.error { color: #991b1b; }
 pre { background: #f2f2f2; padding: 0.75rem; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; }
 .bottomnav { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; box-shadow: 0 -4px 20px rgba(0, 0, 0, .08); display: flex; justify-content: center; gap: 0.5rem; padding: 0.6rem; padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px)); }
-.bottomnav button { border: none; background: #F3F4F6; border-radius: 999px; padding: 0.75rem 1.25rem; font-weight: 700; min-height: 44px; }
+.bottomnav button { border: none; background: #F3F4F6; border-radius: 999px; padding: 0.75rem 0.8rem; font-weight: 700; min-height: 44px; font-size: 0.95rem; }
 .bottomnav button.on { background: var(--ink); color: #fff; }
 /* Responsive breakpoints: fluid, not device-locked. Single column on phones,
    two-column lunch cards on tablets and up, wider centred column on desktop.
