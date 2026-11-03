@@ -1,0 +1,18 @@
+# Family Pilot — Cloudflare Pages + D1 (Wrangler config, Phase 0)
+# How to use this file, step by step:
+# 1. Create the D1 database once:  npx wrangler d1 create family-pilot
+# 2. Copy the database_id Wrangler prints into the block below.
+# 3. Do NOT put secrets here. Service tokens and push keys go in
+#    Wrangler secrets / Pages dashboard secrets only, never in this repo.
+# 4. Connect this repo in the Cloudflare Pages dashboard as project
+#    "family-pilot". Push to main auto-deploys to production.
+#    Other branches give preview URLs.
+
+name = "family-pilot"
+pages_build_output = "public"
+compatibility_date = "2026-11-03"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "family-pilot"
+database_id = "REPLACE_AFTER_WRANGLER_D1_CREATE"
