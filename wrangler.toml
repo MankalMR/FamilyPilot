@@ -15,4 +15,4 @@ compatibility_date = "2026-11-03"
 [[d1_databases]]
 binding = "DB"
 database_name = "family-pilot"
-database_id = "REPLACE_AFTER_WRANGLER_D1_CREATE"
+database_id = "37f6cf9f-c164-4341-9b10-d45c0d3b1c00"
