@@ -2,8 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Responsive, mobile-first: fluid layout, no fixed device width, zoom stays enabled. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#FFF8F1" />
+  <!-- iPhone web app: installable, standalone, safe-area aware. No service worker yet (Phase 2) so deploys never serve stale UI. -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Family Pilot" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/icon.svg" />
+  <link rel="icon" type="image/svg+xml" href="/icon.svg" />
   <title>Family Pilot</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
@@ -11,33 +21,32 @@
   <main>
     <header>
       <h1>Family Pilot</h1>
-      <p class="sub">School tasks and school lunch, shared by both parents. Lunch only.</p>
       <p id="today-line" class="sub"></p>
     </header>
 
-    <nav class="tabs" aria-label="Views">
-      <button type="button" id="tab-today" class="tab active">Today</button>
-      <button type="button" id="tab-week" class="tab">Next 14 days</button>
-    </nav>
+    <div class="filter" role="group" aria-label="Filter by kid">
+      <button type="button" id="filter-all" class="on">Both kids</button>
+      <button type="button" id="filter-pia">Pia only</button>
+      <button type="button" id="filter-misha">Misha only</button>
+    </div>
 
     <p id="status" role="status"></p>
 
     <section id="view-today">
-      <h2>Today</h2>
+      <div class="summary" id="today-summary"></div>
+      <h2>Today's lunch</h2>
       <div id="today-kids"></div>
-      <h3>Items due today or overdue</h3>
+      <h2>Items due today or overdue</h2>
       <div id="today-items"></div>
     </section>
 
     <section id="view-week" hidden>
-      <h2>Next 14 days</h2>
+      <h2>Next 14 days, by day</h2>
       <label class="check"><input type="checkbox" id="show-done" /> Show done items</label>
-      <div id="week-kids"></div>
-      <h3>Items</h3>
-      <div id="week-items"></div>
+      <div id="week-days"></div>
     </section>
 
-    <section>
+    <section id="view-add" hidden>
       <h2 id="item-form-title">Add an item</h2>
       <form id="item-form">
         <input type="hidden" id="item-id" />
@@ -65,9 +74,7 @@
         <button type="submit" id="item-submit">Add item</button>
         <button type="button" id="item-cancel" hidden>Cancel edit</button>
       </form>
-    </section>
 
-    <section>
       <h2 id="lunch-form-title">Add a lunch day</h2>
       <form id="lunch-form">
         <input type="hidden" id="lunch-id" />
@@ -87,12 +94,22 @@
       </form>
     </section>
 
-    <section>
-      <h2>Health check</h2>
-      <button id="health-btn" type="button">Check API</button>
-      <pre id="health-out">Not checked yet.</pre>
-    </section>
+    <footer>
+      <details>
+        <summary>Health check (for troubleshooting)</summary>
+        <button id="health-btn" type="button">Check API</button>
+        <pre id="health-out">Not checked yet.</pre>
+      </details>
+      <p class="sub">Lunch only. Dates are ET calendar dates.</p>
+    </footer>
   </main>
+
+  <nav class="bottomnav" aria-label="Views">
+    <button type="button" id="nav-today" class="on">Today</button>
+    <button type="button" id="nav-week">Next 14 days</button>
+    <button type="button" id="nav-add">+ Add</button>
+  </nav>
+
   <script src="/app.js"></script>
 </body>
 </html>

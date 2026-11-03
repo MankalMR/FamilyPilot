@@ -1,0 +1,17 @@
+{
+  "background_color": "#FFF8F1",
+  "description": "School tasks and school lunch, shared by both parents. Lunch only.",
+  "display": "standalone",
+  "icons": [
+    {
+      "sizes": "any",
+      "src": "/icon.svg",
+      "type": "image/svg+xml"
+    }
+  ],
+  "name": "Family Pilot",
+  "scope": "/",
+  "short_name": "Family Pilot",
+  "start_url": "/",
+  "theme_color": "#FFF8F1"
+}
