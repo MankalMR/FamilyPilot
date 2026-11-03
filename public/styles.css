@@ -19,6 +19,8 @@ h2 { font-size: 1.15rem; margin-top: 1.25rem; }
 .filter { display: flex; background: var(--card); border-radius: 999px; padding: 4px; gap: 4px; box-shadow: var(--shadow); margin: 1rem 0; }
 .filter button { flex: 1; border: none; border-radius: 999px; padding: 0.7rem 0.4rem; font-size: 1rem; cursor: pointer; background: transparent; color: var(--muted); font-weight: 700; }
 .filter button.on { background: var(--ink); color: #fff; }
+.show-lunch { display: block; background: var(--card); border-radius: 12px; box-shadow: var(--shadow); padding: 0.7rem 1rem; margin: 1rem 0; font-weight: 700; cursor: pointer; }
+.show-lunch input { width: auto; margin-right: 0.5rem; transform: scale(1.25); accent-color: var(--misha); }
 .card { background: var(--card); border-radius: 16px; box-shadow: var(--shadow); padding: 0.9rem; margin: 0.6rem 0; }
 .card p { margin: 0.4rem 0; }
 .card .meta { display: block; color: var(--muted); font-size: 0.9rem; }
