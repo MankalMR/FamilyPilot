@@ -30,13 +30,19 @@
       <button type="button" id="filter-misha">Misha only</button>
     </div>
 
+    <div class="filter" role="group" aria-label="Filter by type">
+      <button type="button" id="type-all" class="on">Lunch + Items</button>
+      <button type="button" id="type-lunch">Lunch only</button>
+      <button type="button" id="type-items">Items only</button>
+    </div>
+
     <p id="status" role="status"></p>
 
     <section id="view-today">
       <div class="summary" id="today-summary"></div>
-      <h2>Today's lunch</h2>
+      <h2 id="today-lunch-heading">Today's lunch</h2>
       <div id="today-kids"></div>
-      <h2>Items due today or overdue</h2>
+      <h2 id="today-items-heading">Items due today or overdue</h2>
       <div id="today-items"></div>
     </section>
 

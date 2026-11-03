@@ -22,6 +22,7 @@ const PLANS = [
   { value: "pack", label: "Pack lunch" },
 ];
 let filterKid = "all";
+let filterType = "all"; // all | lunch | items — combines with the kid filter.
 
 function etToday() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
@@ -126,38 +127,43 @@ function render() {
   const undecidedToday = lunch.filter((l) => kidVisible(l.child) && l.date === today && !l.no_school && l.plan === "undecided");
   const nextOpen = items.filter((i) => kidVisible(i.child) && i.status === "open" && i.due_date > today).sort((a, b) => a.due_date.localeCompare(b.due_date))[0];
   const scope = filterKid === "all" ? "both kids" : (filterKid === "pia" ? "Pia" : "Misha");
+  const showLunch = filterType !== "items";
+  const showItems = filterType !== "lunch";
   document.getElementById("today-summary").innerHTML =
     `<h2>Today at a glance</h2>` +
-    `<p>${openToday.length ? `<b>${openToday.length} item${openToday.length > 1 ? "s" : ""} due or overdue</b> for ${scope}.` : `<b>Nothing due today</b> for ${scope}.`}</p>` +
-    `<p>${undecidedToday.length ? `<b>${undecidedToday.length} lunch decision${undecidedToday.length > 1 ? "s" : ""}</b> still undecided for today.` : `<b>Today's lunch is decided.</b>`}</p>` +
-    (nextOpen ? `<p>Up next: <b>${esc(nextOpen.title)}, ${fmtDate(nextOpen.due_date)}</b>.</p>` : "");
+    (showItems ? `<p>${openToday.length ? `<b>${openToday.length} item${openToday.length > 1 ? "s" : ""} due or overdue</b> for ${scope}.` : `<b>Nothing due today</b> for ${scope}.`}</p>` : "") +
+    (showLunch ? `<p>${undecidedToday.length ? `<b>${undecidedToday.length} lunch decision${undecidedToday.length > 1 ? "s" : ""}</b> still undecided for today.` : `<b>Today's lunch is decided.</b>`}</p>` : "") +
+    (showItems && nextOpen ? `<p>Up next: <b>${esc(nextOpen.title)}, ${fmtDate(nextOpen.due_date)}</b>.</p>` : "");
 
+  document.getElementById("today-lunch-heading").hidden = !showLunch;
+  document.getElementById("today-items-heading").hidden = !showItems;
   const todayKids = document.getElementById("today-kids");
-  todayKids.innerHTML = KIDS.filter((k) => kidVisible(k.value)).map((k) => {
+  todayKids.innerHTML = showLunch ? (KIDS.filter((k) => kidVisible(k.value)).map((k) => {
     const day = lunch.find((l) => l.child === k.value && l.date === today);
     return lunchCard(day, k);
-  }).join("") || "<p>No kids selected.</p>";
+  }).join("") || "<p>No kids selected.</p>") : "";
 
-  document.getElementById("today-items").innerHTML =
-    openToday.length ? openToday.map(itemCard).join("") : "<p>No open items due today or overdue.</p>";
+  document.getElementById("today-items").innerHTML = showItems
+    ? (openToday.length ? openToday.map(itemCard).join("") : "<p>No open items due today or overdue.</p>")
+    : "";
 
   // Next 14 days, grouped by day.
   const showDone = document.getElementById("show-done").checked;
   let weekHtml = "";
   for (let i = 0; i < 14; i++) {
     const d = addDays(today, i);
-    const dayLunch = KIDS.filter((k) => kidVisible(k.value)).map((k) => {
+    const dayLunch = filterType === "items" ? "" : KIDS.filter((k) => kidVisible(k.value)).map((k) => {
       const day = lunch.find((l) => l.child === k.value && l.date === d);
       return day ? lunchCard(day, k) : "";
     }).join("");
-    const dayItems = items.filter((it) => {
+    const dayItems = filterType === "lunch" ? [] : items.filter((it) => {
       if (!kidVisible(it.child)) return false;
       if (it.due_date !== d) return false;
       if (it.status === "done") return showDone;
       return true;
     });
     // Overdue open items also appear on the first day, so they are not lost.
-    const extra = i === 0 ? items.filter((it) => kidVisible(it.child) && it.status === "open" && it.due_date < today) : [];
+    const extra = (i === 0 && filterType !== "lunch") ? items.filter((it) => kidVisible(it.child) && it.status === "open" && it.due_date < today) : [];
     const dayItemsHtml = [...extra, ...dayItems].map(itemCard).join("");
     if (dayLunch || dayItemsHtml) {
       weekHtml += `<p class="day-head">${fmtDate(d)}${d === today ? " <span>— today</span>" : ""}</p>` + dayLunch + dayItemsHtml;
@@ -276,6 +282,17 @@ function setFilter(kid) {
 document.getElementById("filter-all").addEventListener("click", () => setFilter("all"));
 document.getElementById("filter-pia").addEventListener("click", () => setFilter("pia"));
 document.getElementById("filter-misha").addEventListener("click", () => setFilter("misha"));
+
+function setType(type) {
+  filterType = type;
+  for (const t of ["all", "lunch", "items"]) {
+    document.getElementById("type-" + t).classList.toggle("on", t === type);
+  }
+  render();
+}
+document.getElementById("type-all").addEventListener("click", () => setType("all"));
+document.getElementById("type-lunch").addEventListener("click", () => setType("lunch"));
+document.getElementById("type-items").addEventListener("click", () => setType("items"));
 
 document.getElementById("item-form").addEventListener("submit", async (e) => {
   e.preventDefault();
