@@ -111,9 +111,8 @@ function lunchCard(day, kid) {
   }
   if (day.no_school) {
     return `<div class="card lunch-card no-school ${kid.value}">
-      <div class="kid-head"><div class="avatar">${esc(kid.label[0])}</div><div><h3>${esc(kid.label)}</h3><p>${esc(kid.school)}</p></div></div>
-      <div>${pill("no_school", "no school")}</div>
-      <p><strong>🎉 No school</strong> — no lunch needed.</p>
+      <div class="kid-head"><div class="avatar">${esc(kid.label[0])}</div><div><div class="card-title-row"><span class="title">No school</span>${pill("no_school", "no school")}</div><span class="meta">${esc(kid.label)} · ${esc(kid.school)}</span></div></div>
+      <p>🎉 No lunch needed.</p>
       ${day.note ? `<p class="note">Note: ${esc(day.note)}</p>` : ""}
       <div class="row-actions">
         <button type="button" data-edit-lunch="${day.id}">Edit</button>
@@ -126,9 +125,7 @@ function lunchCard(day, kid) {
   const full = day.menu_text && day.menu_text.includes("·")
     ? `<button type="button" class="linkbtn" data-expand-menu>Full menu ↓</button><p class="fullmenu">${esc(day.menu_text)}</p>` : "";
   return `<div class="card lunch-card ${kid.value}">
-    <div class="kid-head"><div class="avatar">${esc(kid.label[0])}</div><div><h3>${esc(kid.label)}</h3><p>${esc(kid.school)}</p></div></div>
-    <div>${pill("lunch", "lunch")}</div>
-    <p class="main-dish">${esc(mainDish)}</p>
+    <div class="kid-head"><div class="avatar">${esc(kid.label[0])}</div><div><div class="card-title-row"><p class="main-dish">${esc(mainDish)}</p>${pill("lunch", "lunch")}</div><span class="meta">${esc(kid.label)} · ${esc(kid.school)}</span></div></div>
     ${full}
     ${day.note ? `<p class="note">Note: ${esc(day.note)}</p>` : ""}
     <div class="seg" aria-label="Lunch plan">${planBtns}</div>
@@ -143,8 +140,7 @@ function itemCard(it) {
   const overdue = it.status === "open" && it.due_date < etToday();
   const actor = actorName(it.actor);
   return `<div class="card item-card ${esc(it.child)}${it.status === "done" ? " done" : ""}">
-    <div>${pill(it.category, it.category.replaceAll("_", " "))}<span class="title">${esc(it.title)}</span></div>
-    <span class="meta">${esc(it.child === "pia" ? "Pia" : "Misha")} · ${fmtDate(it.due_date)}${it.due_time ? " " + esc(it.due_time) : ""}${overdue ? " · Overdue" : ""}${actor ? " · by " + actor : ""}</span>
+    <div class="kid-head"><div class="avatar">${esc(it.child === "pia" ? "P" : "M")}</div><div><div class="card-title-row"><span class="title">${esc(it.title)}</span>${pill(it.category, it.category.replaceAll("_", " "))}</div><span class="meta">${esc(it.child === "pia" ? "Pia" : "Misha")} · ${fmtDate(it.due_date)}${it.due_time ? " " + esc(it.due_time) : ""}${overdue ? " · Overdue" : ""}${actor ? " · by " + actor : ""}</span></div></div>
     ${it.details ? `<p>${esc(it.details)}</p>` : ""}
     <div class="row-actions">
       <button type="button" data-toggle-item="${it.id}">${it.status === "done" ? "Reopen" : "Mark done"}</button>
