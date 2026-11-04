@@ -43,8 +43,17 @@ h1 { font-size: clamp(1.5rem, 5vw, 2rem); margin: 0; }
 .item-card.misha { border-top-color: var(--misha-border); }
 h2 { font-size: 1.15rem; margin-top: 1.25rem; }
 .sub { color: var(--muted); margin: 0.25rem 0; }
-.summary { background: var(--card); border-radius: 16px; box-shadow: var(--shadow); padding: 1rem; margin: 1rem 0; }
-.summary h2 { margin: 0 0 0.4rem; }
+.summary { background: var(--card); border-radius: 16px; box-shadow: var(--shadow); padding: 1rem; margin: 1rem 0; overflow: hidden; }
+.summary h2 { margin: 0 0 0.4rem; font-size: 1.25rem; }
+/* Today at a glance stripe (approved mock, Nov 4): a 6px top stripe
+   that follows the kid filter — split Pia/Misha for Both kids,
+   single colour for a single-kid filter. Colours come from the
+   kid-border variables, so dark mode gets the brightened pair
+   automatically. */
+#today-summary.glance-both::before, #today-summary.glance-pia::before, #today-summary.glance-misha::before { content: ""; display: block; height: 6px; margin: -1rem -1rem 1rem; }
+#today-summary.glance-both::before { background: linear-gradient(to right, var(--pia-border) 50%, var(--misha-border) 50%); }
+#today-summary.glance-pia::before { background: var(--pia-border); }
+#today-summary.glance-misha::before { background: var(--misha-border); }
 .summary p { margin: 0.3rem 0; color: var(--muted); }
 .summary p b { color: var(--ink); }
 .filter { display: flex; background: var(--card); border-radius: 999px; padding: 4px; gap: 4px; box-shadow: var(--shadow); margin: 1rem 0; }
@@ -201,3 +210,8 @@ html[data-theme="dark"] .lunch-card.no-school { border: 2px dashed #F59E0B; bord
   .bottomnav .nav-label { display: inline; margin-left: 0.4rem; font-size: 0.9rem; }
   .bottomnav button { flex: none; padding: 0.65rem 1rem; }
 }
+
+/* Glance card in dark mode sits on a slightly lighter surface
+   (#2A2620 vs the regular card #23201B) so it lifts off the page
+   without bringing shadows back. */
+html[data-theme="dark"] .summary { background: #2A2620; }

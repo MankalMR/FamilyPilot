@@ -199,6 +199,10 @@ function render() {
     `<p>${openToday.length ? `<b>${openToday.length} item${openToday.length > 1 ? "s" : ""} due or overdue</b> for ${scope}.` : `<b>Nothing due today</b> for ${scope}.`}</p>` +
     (showLunch ? `<p>${undecidedToday.length ? `<b>${undecidedToday.length} lunch decision${undecidedToday.length > 1 ? "s" : ""}</b> still undecided for today.` : `<b>Today's lunch is decided.</b>`}</p>` : "") +
     (nextOpen ? `<p>Up next: <b>${esc(nextOpen.title)}, ${fmtDate(nextOpen.due_date)}</b>.</p>` : "");
+  // Glance stripe follows the kid filter, like the summary text.
+  const sumEl = document.getElementById("today-summary");
+  sumEl.classList.remove("glance-both", "glance-pia", "glance-misha");
+  sumEl.classList.add(filterKid === "pia" ? "glance-pia" : filterKid === "misha" ? "glance-misha" : "glance-both");
 
   document.getElementById("today-lunch-heading").hidden = !showLunch;
   const todayKids = document.getElementById("today-kids");
