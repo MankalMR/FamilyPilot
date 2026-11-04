@@ -245,7 +245,7 @@ function showView(name) {
   // are hidden there instead of sitting above an unrelated form.
   document.getElementById("view-controls").hidden = !(name === "today" || name === "week");
   if (name === "history") loadHistory();
-  if (name === "settings") loadPushPrefs();
+  if (name === "settings") { loadPushPrefs(); applyTheme(); }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -586,6 +586,41 @@ function resetLunchForm() {
 }
 document.getElementById("lunch-cancel").addEventListener("click", resetLunchForm);
 
+// Appearance: System / Light / Dark. The override is per device
+// (localStorage), not per parent — unlike notification prefs, which
+// live in D1 per user. Effective theme = override, or the phone's
+// setting when override is System. Approved dark palette, current
+// kid pair only — the proposed teal/pink pair is NOT applied here.
+function themeOverride() {
+  const v = localStorage.getItem("family-pilot-theme");
+  return v === "light" || v === "dark" || v === "system" ? v : "system";
+}
+function effectiveTheme() {
+  const o = themeOverride();
+  if (o !== "system") return o;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+function applyTheme() {
+  const eff = effectiveTheme();
+  document.documentElement.setAttribute("data-theme", eff);
+  const meta = document.getElementById("theme-color-meta");
+  if (meta) meta.setAttribute("content", eff === "dark" ? "#171512" : "#FFF8F1");
+  for (const k of ["system", "light", "dark"]) {
+    const btn = document.getElementById("theme-" + k);
+    if (btn) btn.classList.toggle("on", themeOverride() === k);
+  }
+}
+function setTheme(override) {
+  localStorage.setItem("family-pilot-theme", override);
+  applyTheme();
+}
+document.getElementById("theme-system").addEventListener("click", () => setTheme("system"));
+document.getElementById("theme-light").addEventListener("click", () => setTheme("light"));
+document.getElementById("theme-dark").addEventListener("click", () => setTheme("dark"));
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+  if (themeOverride() === "system") applyTheme();
+});
+
 document.getElementById("health-btn").addEventListener("click", async () => {
   const out = document.getElementById("health-out");
   out.textContent = "Checking…";
@@ -603,4 +638,5 @@ if ("serviceWorker" in navigator) {
 }
 document.getElementById("item-due-date").value = etToday();
 document.getElementById("lunch-date").value = etToday();
+applyTheme();
 load().catch((err) => setStatus("Could not load data: " + err.message, true));

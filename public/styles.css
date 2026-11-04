@@ -2,7 +2,26 @@
 :root {
   --bg: #FFF8F1; --ink: #1F2937; --muted: #6B7280; --card: #fff;
   --pia: #C96F4A; --pia-soft: #FDF0E9; --misha: #0F766E; --misha-soft: #E6F4F2;
+  --pia-border: #C96F4A; --pia-avatar: #C96F4A; --pia-soft-text: #9A4A2A;
+  --misha-border: #0F766E; --misha-avatar: #0F766E; --misha-soft-text: #0F766E;
+  --link: #0F766E; --error: #991B1B; --success: #14532D;
   --shadow: 0 6px 24px rgba(31, 41, 55, .08);
+  color-scheme: light;
+}
+/* Approved dark palette (Spark, Nov 4, 2026) — current kid pair only.
+   The proposed Pia-teal / Misha-pink pair is NOT applied here; its
+   dark rows live in Spark's spec and land only if that swap is
+   separately approved. Elevation in dark = lighter card + 1px
+   border, no shadow, no glow. */
+html[data-theme="dark"] {
+  --bg: #171512; --ink: #F5F0E8; --muted: #A8A29A; --card: #23201B;
+  --pia: #E08A63; --pia-soft: rgba(201, 111, 74, 0.18);
+  --misha: #2AB3A0; --misha-soft: rgba(15, 118, 110, 0.22);
+  --pia-border: #E08A63; --pia-avatar: #C96F4A; --pia-soft-text: #E8A07F;
+  --misha-border: #2AB3A0; --misha-avatar: #0F766E; --misha-soft-text: #5ED3C3;
+  --link: #5ED3C3; --error: #F87171; --success: #86EFAC;
+  --shadow: none;
+  color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -17,11 +36,11 @@ h1 { font-size: clamp(1.5rem, 5vw, 2rem); margin: 0; }
 .site-date { margin: 0 0 0 auto; color: var(--muted); font-size: 0.9rem; text-align: right; white-space: nowrap; }
 .site-logo { width: 48px; height: 48px; border-radius: 12px; flex: none; box-shadow: var(--shadow); }
 .pill svg { width: 14px; height: 14px; flex: none; }
-.pill.form_to_sign { background: #E6F4F2; color: #0F766E; }
+.pill.form_to_sign { background: var(--misha-soft); color: var(--misha-soft-text); }
 .pill.heads_up { background: #FDF0E9; color: #9A4A2A; }
-.pill.lunch { background: #E6F4F2; color: #0F766E; }
-.item-card { border-top: 6px solid var(--pia); }
-.item-card.misha { border-top-color: var(--misha); }
+.pill.lunch { background: var(--misha-soft); color: var(--misha-soft-text); }
+.item-card { border-top: 6px solid var(--pia-border); }
+.item-card.misha { border-top-color: var(--misha-border); }
 h2 { font-size: 1.15rem; margin-top: 1.25rem; }
 .sub { color: var(--muted); margin: 0.25rem 0; }
 .summary { background: var(--card); border-radius: 16px; box-shadow: var(--shadow); padding: 1rem; margin: 1rem 0; }
@@ -32,15 +51,15 @@ h2 { font-size: 1.15rem; margin-top: 1.25rem; }
 .filter button { flex: 1; border: none; border-radius: 999px; padding: 0.7rem 0.4rem; font-size: 1rem; cursor: pointer; background: transparent; color: var(--muted); font-weight: 700; }
 .filter button.on { background: var(--ink); color: #fff; }
 .show-lunch { display: block; background: var(--card); border-radius: 12px; box-shadow: var(--shadow); padding: 0.7rem 1rem; margin: 1rem 0; font-weight: 700; cursor: pointer; }
-.show-lunch input { width: auto; margin-right: 0.5rem; transform: scale(1.25); accent-color: var(--misha); }
+.show-lunch input { width: auto; margin-right: 0.5rem; transform: scale(1.25); accent-color: var(--misha-border); }
 .card { background: var(--card); border-radius: 16px; box-shadow: var(--shadow); padding: 0.9rem; margin: 0.6rem 0; }
 .card p { margin: 0.4rem 0; }
 .card .meta { display: block; color: var(--muted); font-size: 0.9rem; }
 .card .note { color: var(--muted); font-size: 0.95rem; }
 .card.done { opacity: 0.65; }
 .card.done .title { text-decoration: line-through; }
-.lunch-card { border-top: 6px solid var(--pia); }
-.lunch-card.misha { border-top-color: var(--misha); }
+.lunch-card { border-top: 6px solid var(--pia-border); }
+.lunch-card.misha { border-top-color: var(--misha-border); }
 .lunch-card.no-school { border: 2px dashed #D97706; border-top: 6px solid #D97706; background: #FFFBEB; text-align: center; }
 .lunch-card.empty { border-style: dashed; color: var(--muted); background: transparent; box-shadow: none; }
 .kid-head { display: flex; align-items: flex-start; gap: 0.75rem; }
@@ -48,14 +67,14 @@ h2 { font-size: 1.15rem; margin-top: 1.25rem; }
 .card-title-row .pill { margin-right: 0; }
 .card-title-row .main-dish, .card-title-row .title { margin: 0; }
 .card-title-row .main-dish { font-size: 1.05rem; color: var(--ink); }
-.avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; color: #fff; background: var(--pia); flex: none; }
-.misha .avatar { background: var(--misha); }
+.avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; color: #fff; background: var(--pia-avatar); flex: none; }
+.misha .avatar { background: var(--misha-avatar); }
 .kid-head h3 { margin: 0; font-size: 1.15rem; }
 .kid-head p { margin: 0; color: var(--muted); font-size: 0.9rem; }
 .main-dish { font-size: 1.05rem; font-weight: 800; }
 .fullmenu { display: none; color: var(--muted); font-size: 0.95rem; }
 .fullmenu.open { display: block; }
-.linkbtn { background: none; border: none; color: var(--misha); font-weight: 700; font-size: 0.95rem; padding: 0.4rem 0; cursor: pointer; }
+.linkbtn { background: none; border: none; color: var(--link); font-weight: 700; font-size: 0.95rem; padding: 0.4rem 0; cursor: pointer; }
 .flag { display: inline-block; margin-left: 0.5rem; padding: 0.1rem 0.5rem; border-radius: 999px; background: #B45309; color: #fff; font-size: 0.85rem; }
 .pill { display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.5rem; border-radius: 999px; background: #FEF3C7; color: #92400E; margin-right: 0.4rem; }
 .pill.test { background: #E0E7FF; color: #3730A3; }
@@ -88,16 +107,16 @@ form input, form select, form textarea { display: block; box-sizing: border-box;
    border-box gives 100%-2px, content-box gives 100%-2px+2px=100%. */
 form input[type="date"], form input[type="time"] { box-sizing: border-box; width: calc(100% - 2px); max-width: calc(100% - 2px); min-width: 0; padding: 0.55rem 0; }
 .primary-btn { display: block; width: 100%; background: var(--ink); color: #fff; border: none; border-radius: 999px; padding: 0.9rem; font-size: 1.05rem; font-weight: 800; min-height: 48px; margin-top: 0.75rem; cursor: pointer; }
-.form-status { min-height: 1.5rem; margin: 0.5rem 0 0; color: #991b1b; }
-.form-status.ok { color: #14532d; }
+.form-status { min-height: 1.5rem; margin: 0.5rem 0 0; color: var(--error); }
+.form-status.ok { color: var(--success); }
 #view-add { padding-bottom: 2rem; }
 form .check { font-weight: 400; }
 label.check { display: block; margin: 0.4rem 0; cursor: pointer; }
 label.check input { width: auto; margin-right: 0.5rem; }
 form .check input { display: inline; width: auto; }
 .hint { color: var(--muted); font-size: 0.9rem; }
-#status { min-height: 1.5rem; color: #14532d; }
-#status.error { color: #991b1b; }
+#status { min-height: 1.5rem; color: var(--success); }
+#status.error { color: var(--error); }
 pre { background: #f2f2f2; padding: 0.75rem; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; }
 .bottomnav { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; box-shadow: 0 -4px 20px rgba(0, 0, 0, .08); display: flex; justify-content: center; gap: 0.35rem; padding: 0.6rem; padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px)); }
 /* Five tabs now (Today / Next 14 / History / Settings / + Add), so
@@ -119,3 +138,40 @@ pre { background: #f2f2f2; padding: 0.75rem; border-radius: 8px; overflow-x: aut
   main { max-width: 900px; }
   .bottomnav { left: 50%; right: auto; transform: translateX(-50%); width: auto; bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); border-radius: 999px; padding: 0.5rem; }
 }
+
+/* Dark mode overrides — approved palette, current kid pair only.
+   Elevation = card surface + 1px border, no shadow. Selected pills
+   flip to cream bg + ink text, so selection stays unmistakable. */
+html[data-theme="dark"] .card, html[data-theme="dark"] .summary,
+html[data-theme="dark"] .filter, html[data-theme="dark"] .show-lunch {
+  border: 1px solid #3A352E; box-shadow: none;
+}
+html[data-theme="dark"] .site-logo { box-shadow: none; border: 1px solid #3A352E; }
+html[data-theme="dark"] button { background: #2A2620; color: var(--ink); border-color: #3A352E; }
+html[data-theme="dark"] button.active,
+html[data-theme="dark"] .filter button.on,
+html[data-theme="dark"] .seg button.on,
+html[data-theme="dark"] .primary-btn { background: #FFF8F1; color: #1F2937; border-color: #FFF8F1; }
+html[data-theme="dark"] .filter button { color: var(--muted); }
+html[data-theme="dark"] .seg { background: #2A2620; }
+html[data-theme="dark"] .seg button { color: var(--muted); }
+html[data-theme="dark"] form input, html[data-theme="dark"] form select,
+html[data-theme="dark"] form textarea { background: #2A2620; color: var(--ink); border-color: #3A352E; }
+html[data-theme="dark"] pre { background: #2A2620; color: var(--ink); }
+html[data-theme="dark"] .row-actions button.danger { background: rgba(248, 113, 113, 0.15); color: #F87171; border-color: #F87171; }
+html[data-theme="dark"] .lunch-card.no-school { background: rgba(245, 158, 11, 0.15); border-color: #F59E0B; border-top-color: #F59E0B; }
+html[data-theme="dark"] .pill { background: rgba(255, 255, 255, 0.10); color: #D6D0C4; }
+html[data-theme="dark"] .pill.test { background: rgba(124, 107, 217, 0.20); color: #C4B5FD; }
+html[data-theme="dark"] .pill.homework { background: rgba(34, 197, 94, 0.18); color: #86EFAC; }
+html[data-theme="dark"] .pill.project { background: rgba(201, 111, 74, 0.18); color: #E8A07F; }
+html[data-theme="dark"] .pill.form_to_sign { background: rgba(15, 118, 110, 0.22); color: #5ED3C3; }
+html[data-theme="dark"] .pill.event { background: rgba(245, 158, 11, 0.18); color: #FCD34D; }
+html[data-theme="dark"] .pill.no_school { background: rgba(255, 255, 255, 0.10); color: #D6D0C4; }
+html[data-theme="dark"] .pill.heads_up { background: rgba(245, 158, 11, 0.18); color: #FCD34D; }
+html[data-theme="dark"] .pill.lunch { background: rgba(15, 118, 110, 0.22); color: #5ED3C3; }
+/* Category icon fills brighten in dark to match their pill text. */
+html[data-theme="dark"] .pill svg [fill="#C96F4A"] { fill: #E8A07F; }
+html[data-theme="dark"] .pill svg [fill="#0F766E"] { fill: #5ED3C3; }
+html[data-theme="dark"] .bottomnav { background: #1E1B17; border-top: 1px solid #3A352E; box-shadow: none; }
+html[data-theme="dark"] .bottomnav button { background: #2A2620; color: #D6D0C4; }
+html[data-theme="dark"] .bottomnav button.on { background: #FFF8F1; color: #1F2937; }

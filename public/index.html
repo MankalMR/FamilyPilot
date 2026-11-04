@@ -5,7 +5,7 @@
   <!-- Responsive, mobile-first: fluid layout, no fixed device width, zoom stays enabled. -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
-  <meta name="theme-color" content="#FFF8F1" />
+  <meta id="theme-color-meta" name="theme-color" content="#FFF8F1" />
   <!-- iPhone web app: installable, standalone, safe-area aware. No service worker yet (Phase 2) so deploys never serve stale UI. -->
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -72,6 +72,13 @@
       <h2>Notification types</h2>
       <p class="sub">Untick a type to silence it for you only — the other parent's settings are separate. Menu load is off by default: a monthly import touches many days, and it arrives as one batched push if you turn it on.</p>
       <div id="push-prefs"></div>
+      <h2>Appearance</h2>
+      <p class="sub">System follows your phone's setting. This choice is per device, not per parent.</p>
+      <div class="seg" role="group" aria-label="Appearance">
+        <button type="button" id="theme-system" class="on">System</button>
+        <button type="button" id="theme-light">Light</button>
+        <button type="button" id="theme-dark">Dark</button>
+      </div>
     </section>
 
     <section id="view-add" hidden>
