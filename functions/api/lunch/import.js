@@ -23,6 +23,7 @@ import {
   json,
   readJson,
 } from "../_shared.js";
+import { sendPush } from "../_push.js";
 
 export async function onRequestPost(context) {
   const bad = dbOrError(context);
@@ -84,6 +85,21 @@ export async function onRequestPost(context) {
     } else {
       unchanged++;
     }
+  }
+
+  // One batched menu_load push for the whole import, never one
+  // per day. menu_load defaults OFF (see _push.js), so this is a
+  // no-op unless a parent turns it on — the batching is what keeps
+  // it from becoming 30+ pushes if they do.
+  if (inserted + menuUpdated > 0) {
+    try {
+      await sendPush(context.env, {
+        actor,
+        eventType: "menu_load",
+        title: "Menus loaded",
+        body: `${inserted} new days, ${menuUpdated} updated.`,
+      });
+    } catch {}
   }
 
   return json({

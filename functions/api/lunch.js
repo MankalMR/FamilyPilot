@@ -14,6 +14,13 @@ import {
   rowToLunch,
   validateLunchInput,
 } from "./_shared.js";
+import { kidLabel, mainDish, sendPush } from "./_push.js";
+
+async function notify(context, actor, event) {
+  try {
+    await sendPush(context.env, { actor, ...event });
+  } catch {}
+}
 
 export async function onRequestGet(context) {
   const bad = dbOrError(context);
@@ -64,5 +71,12 @@ export async function onRequestPost(context) {
   const row = await context.env.DB.prepare("SELECT * FROM lunch_days WHERE id = ?")
     .bind(res.meta.last_row_id)
     .first();
+  await notify(context, actor, {
+    eventType: "lunch_change",
+    title: value.no_school
+      ? `${kidLabel(value.child)} · No school: ${value.date}`
+      : `${kidLabel(value.child)} · Lunch added: ${value.date}`,
+    body: value.no_school ? "" : mainDish(value.menu_text),
+  });
   return json({ ok: true, lunch: rowToLunch(row) }, 201);
 }

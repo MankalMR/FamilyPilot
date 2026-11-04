@@ -26,3 +26,22 @@ export async function onRequestPost(context) {
   ).bind(userEmail, endpoint, p256dh, auth).run();
   return json({ ok: true, user_email: userEmail });
 }
+
+// DELETE /api/push/subscribe — unsubscribe one device: the caller
+// removes only their own subscription row for the given endpoint.
+// The frontend also calls PushManager.unsubscribe() first, so the
+// browser stops delivering to that endpoint at all.
+export async function onRequestDelete(context) {
+  const bad = dbOrError(context);
+  if (bad) return bad;
+  const { body, error: parseError } = await readJson(context.request);
+  if (parseError) return error(parseError);
+  const actor = actorOf(context.request);
+  if (actor === "service") return error("Sign in via Access to unsubscribe", 401);
+  const endpoint = typeof body.endpoint === "string" ? body.endpoint : "";
+  if (!endpoint) return error("endpoint is required", 400);
+  const res = await context.env.DB.prepare(
+    "DELETE FROM push_subscriptions WHERE user_email = ? AND endpoint = ?"
+  ).bind(actor, endpoint).run();
+  return json({ ok: true, deleted: res.meta.changes || 0 });
+}

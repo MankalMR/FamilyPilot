@@ -10,6 +10,15 @@ import {
   rowToItem,
   validateItemInput,
 } from "./_shared.js";
+import { kidLabel, sendPush } from "./_push.js";
+
+// Fan-out must never fail the mutation: a push error is swallowed
+// here, and the mutation response is returned unchanged.
+async function notify(context, actor, event) {
+  try {
+    await sendPush(context.env, { actor, ...event });
+  } catch {}
+}
 
 export async function onRequestGet(context) {
   const bad = dbOrError(context);
@@ -52,5 +61,10 @@ export async function onRequestPost(context) {
   const row = await context.env.DB.prepare("SELECT * FROM items WHERE id = ?")
     .bind(res.meta.last_row_id)
     .first();
+  await notify(context, actor, {
+    eventType: "new_item",
+    title: `${kidLabel(value.child)} · New ${value.category.replaceAll("_", " ")}: ${value.title}`,
+    body: `Due ${value.due_date}${value.due_time ? " " + value.due_time : ""}`,
+  });
   return json({ ok: true, item: rowToItem(row) }, 201);
 }

@@ -240,6 +240,7 @@ async function loadHistory() {
   } catch (err) {
     notifEl.innerHTML = "<p>Could not load history: " + esc(err.message) + "</p>";
   }
+  await loadPushPrefs();
 }
 async function enableNotifications() {
   try {
@@ -277,6 +278,48 @@ async function sendTestPush() {
     await loadHistory();
   } catch (err) {
     setStatus("Test push failed: " + err.message, true);
+  }
+}
+async function loadPushPrefs() {
+  const el = document.getElementById("push-prefs");
+  if (!el) return;
+  try {
+    const data = await api("/api/push/prefs");
+    el.innerHTML = data.prefs.map((p) => `<label class="check"><input type="checkbox" data-pref="${esc(p.event_type)}" ${p.enabled ? "checked" : ""} /> ${esc(p.label)}</label>`).join("");
+    el.querySelectorAll("[data-pref]").forEach((box) => box.addEventListener("change", async () => {
+      try {
+        await api("/api/push/prefs", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ event_type: box.dataset.pref, enabled: box.checked }),
+        });
+      } catch (err) {
+        setStatus("Could not save notification type: " + err.message, true);
+        box.checked = !box.checked;
+      }
+    }));
+  } catch (err) {
+    el.innerHTML = "<p>Could not load notification types: " + esc(err.message) + "</p>";
+  }
+}
+async function disableNotifications() {
+  try {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      setStatus("Push is not supported in this browser.", true);
+      return;
+    }
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) {
+      const endpoint = sub.endpoint;
+      await sub.unsubscribe();
+      await api("/api/push/subscribe", {
+        method: "DELETE", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ endpoint }),
+      });
+    }
+    setStatus("Notifications disabled on this device.");
+  } catch (err) {
+    setStatus("Could not disable notifications: " + err.message, true);
   }
 }
 
@@ -400,6 +443,7 @@ document.getElementById("nav-history").addEventListener("click", () => showView(
 document.getElementById("nav-add").addEventListener("click", () => showView("add"));
 document.getElementById("enable-push").addEventListener("click", enableNotifications);
 document.getElementById("test-push").addEventListener("click", sendTestPush);
+document.getElementById("disable-push").addEventListener("click", disableNotifications);
 document.getElementById("show-done").addEventListener("change", render);
 
 function setFilter(kid) {
