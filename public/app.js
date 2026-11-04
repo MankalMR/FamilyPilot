@@ -26,6 +26,24 @@ let showLunch = true; // checkbox: show lunch or not. Items are always shown.
 // VAPID public key for push subscriptions (spike). The matching private
 // JWK is a Pages secret (VAPID_PRIVATE_KEY), never in the repo.
 const VAPID_PUBLIC_KEY = "BE_-RxVbDf3GqCin_DzFOfzTAZgyKyyB8-6Gw6HnZYsx5wlSc04DVzM8wg1dpqSgulDTmA8hnNuMQM_YJFCF8yw";
+// Category icons, from Spark Muse's approved set, redrawn as inline
+// SVG for 16–20px pill size: thick strokes, no fine detail, no text.
+// Tiny-size fixes from Spark applied: solid pencil (homework), no
+// signature squiggle (form_to_sign), simplified calendar grid (event),
+// teal apple on transparent (lunch), house + slash only (no_school).
+const ICONS = {
+  test: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 12.5 L11 15.5 L16.5 9" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  homework: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6 Q8 4 12 6 Q16 4 20 6 L20 18 Q16 16 12 18 Q8 16 4 18 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 6 L12 18" stroke="currentColor" stroke-width="2"/></svg>',
+  project: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="14" width="9" height="6" rx="1" fill="#C96F4A"/><rect x="11" y="8" width="9" height="6" rx="1" fill="#C96F4A"/><rect x="6.5" y="11" width="3" height="3" fill="#C96F4A"/><rect x="13.5" y="5" width="3" height="3" fill="#C96F4A"/></svg>',
+  form_to_sign: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="12" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 4 L20 9 L15 14 L13 12 Z" fill="currentColor"/></svg>',
+  event: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 10 H20" stroke="currentColor" stroke-width="2"/><path d="M12 12.5 L13 14.5 L15 14.5 L13.5 16 L14 18 L12 17 L10 18 L10.5 16 L9 14.5 L11 14.5 Z" fill="#C96F4A"/></svg>',
+  no_school: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12 L12 6 L19 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11 L8 19 L16 19 L16 11" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 4 L20 20" stroke="#C96F4A" stroke-width="2.5" stroke-linecap="round"/></svg>',
+  heads_up: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 Q16 4 16 10 L17 16 Q17 18 15 18 L9 18 Q7 18 7 16 L8 10 Q8 4 12 4 Z" fill="currentColor"/><circle cx="18" cy="6" r="2.5" fill="#C96F4A"/></svg>',
+  lunch: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="13" r="5" fill="#0F766E"/><circle cx="15" cy="13" r="5" fill="#0F766E"/><path d="M12 8 Q13 5 16 5 Q15 8 12 8 Z" fill="#0F766E"/></svg>',
+};
+function pill(category, label) {
+  return `<span class="pill ${esc(category)}">${ICONS[category] || ""}${esc(label)}</span>`;
+}
 
 function etToday() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
@@ -94,6 +112,7 @@ function lunchCard(day, kid) {
   if (day.no_school) {
     return `<div class="card lunch-card no-school ${kid.value}">
       <div class="kid-head"><div class="avatar">${esc(kid.label[0])}</div><div><h3>${esc(kid.label)}</h3><p>${esc(kid.school)}</p></div></div>
+      <div>${pill("no_school", "no school")}</div>
       <p><strong>🎉 No school</strong> — no lunch needed.</p>
       ${day.note ? `<p class="note">Note: ${esc(day.note)}</p>` : ""}
       <div class="row-actions">
@@ -108,6 +127,7 @@ function lunchCard(day, kid) {
     ? `<button type="button" class="linkbtn" data-expand-menu>Full menu ↓</button><p class="fullmenu">${esc(day.menu_text)}</p>` : "";
   return `<div class="card lunch-card ${kid.value}">
     <div class="kid-head"><div class="avatar">${esc(kid.label[0])}</div><div><h3>${esc(kid.label)}</h3><p>${esc(kid.school)}</p></div></div>
+    <div>${pill("lunch", "lunch")}</div>
     <p class="main-dish">${esc(mainDish)}</p>
     ${full}
     ${day.note ? `<p class="note">Note: ${esc(day.note)}</p>` : ""}
@@ -122,8 +142,8 @@ function lunchCard(day, kid) {
 function itemCard(it) {
   const overdue = it.status === "open" && it.due_date < etToday();
   const actor = actorName(it.actor);
-  return `<div class="card item-card${it.status === "done" ? " done" : ""}">
-    <div><span class="pill ${esc(it.category)}">${esc(it.category.replaceAll("_", " "))}</span><span class="title">${esc(it.title)}</span></div>
+  return `<div class="card item-card ${esc(it.child)}${it.status === "done" ? " done" : ""}">
+    <div>${pill(it.category, it.category.replaceAll("_", " "))}<span class="title">${esc(it.title)}</span></div>
     <span class="meta">${esc(it.child === "pia" ? "Pia" : "Misha")} · ${fmtDate(it.due_date)}${it.due_time ? " " + esc(it.due_time) : ""}${overdue ? " · Overdue" : ""}${actor ? " · by " + actor : ""}</span>
     ${it.details ? `<p>${esc(it.details)}</p>` : ""}
     <div class="row-actions">

@@ -10,6 +10,14 @@ body { margin: 0; font-family: system-ui, -apple-system, sans-serif; line-height
 button, input, select, textarea { touch-action: manipulation; }
 main { max-width: 620px; margin: 0 auto; padding: 1rem 1rem calc(6rem + env(safe-area-inset-bottom, 0px)); padding-left: max(1rem, env(safe-area-inset-left, 0px)); padding-right: max(1rem, env(safe-area-inset-right, 0px)); }
 h1 { font-size: clamp(1.5rem, 5vw, 2rem); margin: 0; }
+.site-head { display: flex; align-items: center; gap: 0.75rem; }
+.site-logo { width: 48px; height: 48px; border-radius: 12px; flex: none; box-shadow: var(--shadow); }
+.pill svg { width: 14px; height: 14px; flex: none; }
+.pill.form_to_sign { background: #E6F4F2; color: #0F766E; }
+.pill.heads_up { background: #FDF0E9; color: #9A4A2A; }
+.pill.lunch { background: #E6F4F2; color: #0F766E; }
+.item-card { border-top: 6px solid var(--pia); }
+.item-card.misha { border-top-color: var(--misha); }
 h2 { font-size: 1.15rem; margin-top: 1.25rem; }
 .sub { color: var(--muted); margin: 0.25rem 0; }
 .summary { background: var(--card); border-radius: 16px; box-shadow: var(--shadow); padding: 1rem; margin: 1rem 0; }
@@ -41,7 +49,7 @@ h2 { font-size: 1.15rem; margin-top: 1.25rem; }
 .fullmenu.open { display: block; }
 .linkbtn { background: none; border: none; color: var(--misha); font-weight: 700; font-size: 0.95rem; padding: 0.4rem 0; cursor: pointer; }
 .flag { display: inline-block; margin-left: 0.5rem; padding: 0.1rem 0.5rem; border-radius: 999px; background: #B45309; color: #fff; font-size: 0.85rem; }
-.pill { display: inline-block; font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.5rem; border-radius: 999px; background: #FEF3C7; color: #92400E; margin-right: 0.4rem; }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.5rem; border-radius: 999px; background: #FEF3C7; color: #92400E; margin-right: 0.4rem; }
 .pill.test { background: #E0E7FF; color: #3730A3; }
 .pill.homework { background: #DCFCE7; color: #166534; }
 .pill.project { background: #FCE7F3; color: #9D174D; }
