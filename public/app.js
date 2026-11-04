@@ -79,7 +79,7 @@ const statusEl = document.getElementById("status");
 function friendlyError(msg) {
   const m = String(msg || "");
   if (/already exists for this child and date/i.test(m)) {
-    return "That lunch day already exists for this kid and date. Find it in Today or Next 14 days and tap Edit there.";
+    return "That lunch day already exists for this kid and date. Find it in Today or Next Up and tap Edit there.";
   }
   if (/Request failed \(\d+\)|Failed to fetch|NetworkError/i.test(m)) {
     return "Couldn't reach Family Pilot. Check your connection and try again.";
