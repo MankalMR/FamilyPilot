@@ -70,6 +70,11 @@
     </section>
 
     <section id="view-add" hidden>
+      <div class="filter" role="group" aria-label="What to add">
+        <button type="button" id="add-item-tab" class="on">Add item</button>
+        <button type="button" id="add-lunch-tab">Add lunch day</button>
+      </div>
+      <div id="add-item-pane">
       <h2 id="item-form-title">Add an item</h2>
       <form id="item-form">
         <input type="hidden" id="item-id" />
@@ -94,10 +99,13 @@
         <label>Due date <input id="item-due-date" type="date" required /></label>
         <label>Due time (optional) <input id="item-due-time" type="time" /></label>
         <label>Details <textarea id="item-details" rows="3"></textarea></label>
-        <button type="submit" id="item-submit">Add item</button>
+        <button type="submit" id="item-submit" class="primary-btn">Add item</button>
         <button type="button" id="item-cancel" hidden>Cancel edit</button>
+        <p id="item-form-status" class="form-status" role="status"></p>
       </form>
+      </div>
 
+      <div id="add-lunch-pane" hidden>
       <h2 id="lunch-form-title">Add a lunch day</h2>
       <form id="lunch-form">
         <input type="hidden" id="lunch-id" />
@@ -112,9 +120,11 @@
         <label class="check"><input type="checkbox" id="lunch-no-school" /> No school this day</label>
         <label>Note <textarea id="lunch-note" rows="2"></textarea></label>
         <p class="hint">Plan (school / pack) is set with the toggle buttons on each lunch card, not here. A monthly import never changes a plan you set.</p>
-        <button type="submit" id="lunch-submit">Add lunch day</button>
+        <button type="submit" id="lunch-submit" class="primary-btn">Add lunch day</button>
         <button type="button" id="lunch-cancel" hidden>Cancel edit</button>
+        <p id="lunch-form-status" class="form-status" role="status"></p>
       </form>
+      </div>
     </section>
 
     <footer>

@@ -73,9 +73,43 @@ function actorName(actor) {
 }
 
 const statusEl = document.getElementById("status");
+// API errors must never reach the user as API talk: no PATCH, no
+// /api/... paths, no status codes. Translate the ones we know,
+// and strip API references from anything else.
+function friendlyError(msg) {
+  const m = String(msg || "");
+  if (/already exists for this child and date/i.test(m)) {
+    return "That lunch day already exists for this kid and date. Find it in Today or Next 14 days and tap Edit there.";
+  }
+  if (/Request failed \(\d+\)|Failed to fetch|NetworkError/i.test(m)) {
+    return "Couldn't reach Family Pilot. Check your connection and try again.";
+  }
+  if (/PATCH|\/api\//i.test(m)) {
+    return "Couldn't save that. Please check the fields and try again.";
+  }
+  return m.replace(/\/api\/[^\s]*/g, "").trim() || "Couldn't save that. Please try again.";
+}
 function setStatus(msg, isError = false) {
-  statusEl.textContent = msg || "";
+  statusEl.textContent = isError ? friendlyError(msg) : (msg || "");
   statusEl.className = isError ? "error" : "";
+}
+function setFormStatus(elId, msg, isError = false) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.textContent = isError ? friendlyError(msg) : (msg || "");
+  el.className = isError ? "form-status" : "form-status ok";
+}
+// Add view shows ONE form at a time (item or lunch), not both
+// stacked under a single + Add tab. Edit flows jump to the right
+// pane; the + Add tab keeps whichever pane was last used.
+function showAddPane(kind) {
+  const itemPane = document.getElementById("add-item-pane");
+  const lunchPane = document.getElementById("add-lunch-pane");
+  if (!itemPane || !lunchPane) return;
+  itemPane.hidden = kind !== "item";
+  lunchPane.hidden = kind !== "lunch";
+  document.getElementById("add-item-tab").classList.toggle("on", kind === "item");
+  document.getElementById("add-lunch-tab").classList.toggle("on", kind === "lunch");
 }
 async function api(path, options) {
   // One retry for transient network failures only (e.g. a first-load
@@ -363,6 +397,7 @@ function wireCardActions(root) {
         document.getElementById("item-form-title").textContent = "Edit item";
         document.getElementById("item-submit").textContent = "Save item";
         document.getElementById("item-cancel").hidden = false;
+        showAddPane("item");
         showView("add");
         return;
       } else if (btn.dataset.deleteItem) {
@@ -397,6 +432,7 @@ function wireCardActions(root) {
         document.getElementById("lunch-form-title").textContent = "Edit lunch day";
         document.getElementById("lunch-submit").textContent = "Save lunch day";
         document.getElementById("lunch-cancel").hidden = false;
+        showAddPane("lunch");
         showView("add");
         return;
       } else if (btn.dataset.deleteLunch) {
@@ -437,10 +473,12 @@ async function load() {
   render();
 }
 
-document.getElementById("nav-today").addEventListener("click", () => showView("today"));
-document.getElementById("nav-week").addEventListener("click", () => showView("week"));
-document.getElementById("nav-history").addEventListener("click", () => showView("history"));
-document.getElementById("nav-add").addEventListener("click", () => showView("add"));
+document.getElementById("nav-today").addEventListener("click", () => { setStatus(""); showView("today"); });
+document.getElementById("nav-week").addEventListener("click", () => { setStatus(""); showView("week"); });
+document.getElementById("nav-history").addEventListener("click", () => { setStatus(""); showView("history"); });
+document.getElementById("nav-add").addEventListener("click", () => { setStatus(""); showView("add"); });
+document.getElementById("add-item-tab").addEventListener("click", () => showAddPane("item"));
+document.getElementById("add-lunch-tab").addEventListener("click", () => showAddPane("lunch"));
 document.getElementById("enable-push").addEventListener("click", enableNotifications);
 document.getElementById("test-push").addEventListener("click", sendTestPush);
 document.getElementById("disable-push").addEventListener("click", disableNotifications);
@@ -489,10 +527,12 @@ document.getElementById("item-form").addEventListener("submit", async (e) => {
     showView("today");
   } catch (err) {
     setStatus(err.message, true);
+    setFormStatus("item-form-status", err.message, true);
   }
 });
 function resetItemForm() {
   editingItemId = null;
+  setFormStatus("item-form-status", "");
   document.getElementById("item-form").reset();
   document.getElementById("item-due-date").value = etToday();
   document.getElementById("item-form-title").textContent = "Add an item";
@@ -527,10 +567,12 @@ document.getElementById("lunch-form").addEventListener("submit", async (e) => {
     showView("today");
   } catch (err) {
     setStatus(err.message, true);
+    setFormStatus("lunch-form-status", err.message, true);
   }
 });
 function resetLunchForm() {
   editingLunchId = null;
+  setFormStatus("lunch-form-status", "");
   document.getElementById("lunch-form").reset();
   document.getElementById("lunch-date").value = etToday();
   document.getElementById("lunch-form-title").textContent = "Add a lunch day";
