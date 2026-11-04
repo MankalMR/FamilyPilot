@@ -236,11 +236,16 @@ function render() {
 }
 
 function showView(name) {
-  for (const v of ["today", "week", "history", "add"]) {
+  for (const v of ["today", "week", "history", "settings", "add"]) {
     document.getElementById("view-" + v).hidden = v !== name;
     document.getElementById("nav-" + v).classList.toggle("on", v === name);
   }
+  // Kid filter + Show lunch only mean anything on Today / Next 14
+  // days. They did nothing on Add, History, or Settings, so they
+  // are hidden there instead of sitting above an unrelated form.
+  document.getElementById("view-controls").hidden = !(name === "today" || name === "week");
   if (name === "history") loadHistory();
+  if (name === "settings") loadPushPrefs();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -265,7 +270,7 @@ async function loadHistory() {
     const data = await api("/api/notifications");
     notifEl.innerHTML = data.notifications.length
       ? data.notifications.map((n) => `<div class="card"><div><span class="pill">${esc(n.event_type)}</span><span class="title">${esc(n.title)}</span></div><span class="meta">${fmtDateTimeET(n.created_at)} · to ${esc(n.recipient || "all")} · ${n.sent ? "sent" : "not sent"}${n.actor ? " · by " + actorName(n.actor) : ""}</span>${n.body ? `<p>${esc(n.body)}</p>` : ""}</div>`).join("")
-      : "<p>No notifications sent yet. Enable notifications below, then send a test push — it will appear here.</p>";
+      : "<p>No notifications sent yet. Enable notifications in Settings, then send a test push — it will appear here.</p>";
     recentEl.innerHTML = data.recent_changes.length
       ? data.recent_changes.map((r) => r.kind === "item"
         ? `<div class="card"><div><span class="title">${esc(r.title)}</span></div><span class="meta">Item · ${esc(r.child)} · ${esc(r.status)} · due ${fmtDate(r.due_date)} · ${fmtDateTimeET(r.updated_at)}</span></div>`
@@ -274,7 +279,6 @@ async function loadHistory() {
   } catch (err) {
     notifEl.innerHTML = "<p>Could not load history: " + esc(err.message) + "</p>";
   }
-  await loadPushPrefs();
 }
 async function enableNotifications() {
   try {
@@ -476,6 +480,7 @@ async function load() {
 document.getElementById("nav-today").addEventListener("click", () => { setStatus(""); showView("today"); });
 document.getElementById("nav-week").addEventListener("click", () => { setStatus(""); showView("week"); });
 document.getElementById("nav-history").addEventListener("click", () => { setStatus(""); showView("history"); });
+document.getElementById("nav-settings").addEventListener("click", () => { setStatus(""); showView("settings"); });
 document.getElementById("nav-add").addEventListener("click", () => { setStatus(""); showView("add"); });
 document.getElementById("add-item-tab").addEventListener("click", () => showAddPane("item"));
 document.getElementById("add-lunch-tab").addEventListener("click", () => showAddPane("lunch"));
