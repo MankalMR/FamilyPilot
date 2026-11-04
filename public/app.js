@@ -22,7 +22,7 @@ const PLANS = [
   { value: "pack", label: "Pack lunch" },
 ];
 let filterKid = "all";
-let showLunch = true; // checkbox: show lunch or not. Items are always shown.
+let showLunch = false; // checkbox: show lunch or not (unchecked by default). Items are always shown.
 // VAPID public key for push subscriptions (spike). The matching private
 // JWK is a Pages secret (VAPID_PRIVATE_KEY), never in the repo.
 const VAPID_PUBLIC_KEY = "BE_-RxVbDf3GqCin_DzFOfzTAZgyKyyB8-6Gw6HnZYsx5wlSc04DVzM8wg1dpqSgulDTmA8hnNuMQM_YJFCF8yw";
