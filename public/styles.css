@@ -78,10 +78,15 @@ button.active { background: var(--ink); color: #fff; }
 .day-head span { color: var(--muted); font-weight: 600; }
 form label { display: block; margin: 0.6rem 0; font-weight: 600; }
 form input, form select, form textarea { display: block; box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; font-size: 1rem; padding: 0.55rem; border: 1px solid #999; border-radius: 10px; margin-top: 0.25rem; }
-/* iOS date/time controls carry their own native sizing and can
-   ignore the generic width, overflowing the field to the right —
-   so they get the same width rules stated explicitly. */
-form input[type="date"], form input[type="time"] { box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; }
+/* iOS date/time controls ignore author box-sizing: their horizontal
+   padding is added ON TOP of width:100%, so the field overflows by
+   about the padding amount (~18px) — exactly what the screenshots
+   showed, and why the earlier width-only fix did nothing. The fix
+   is to take horizontal padding out of these controls (their text
+   is centered anyway, so it looks the same) and compensate for the
+   2px border, so the total lands at 100% under either sizing model:
+   border-box gives 100%-2px, content-box gives 100%-2px+2px=100%. */
+form input[type="date"], form input[type="time"] { box-sizing: border-box; width: calc(100% - 2px); max-width: calc(100% - 2px); min-width: 0; padding: 0.55rem 0; }
 .primary-btn { display: block; width: 100%; background: var(--ink); color: #fff; border: none; border-radius: 999px; padding: 0.9rem; font-size: 1.05rem; font-weight: 800; min-height: 48px; margin-top: 0.75rem; cursor: pointer; }
 .form-status { min-height: 1.5rem; margin: 0.5rem 0 0; color: #991b1b; }
 .form-status.ok { color: #14532d; }
