@@ -175,3 +175,29 @@ html[data-theme="dark"] .pill svg [fill="#0F766E"] { fill: #5ED3C3; }
 html[data-theme="dark"] .bottomnav { background: #1E1B17; border-top: 1px solid #3A352E; box-shadow: none; }
 html[data-theme="dark"] .bottomnav button { background: #2A2620; color: #D6D0C4; }
 html[data-theme="dark"] .bottomnav button.on { background: #FFF8F1; color: #1F2937; }
+
+/* Fix (Nov 4, user screenshots): the dark .card rule above uses the
+   border shorthand, which reset the 6px kid-coloured top border to
+   1px #3A352E — so dark cards lost their Pia/Misha top stripe
+   while light cards kept it. Re-assert the coloured top border
+   after that rule, for item and lunch cards, in both kid colours,
+   plus the no-school widths the shorthand also swallowed. */
+html[data-theme="dark"] .item-card { border-top: 6px solid var(--pia-border); }
+html[data-theme="dark"] .item-card.misha { border-top-color: var(--misha-border); }
+html[data-theme="dark"] .lunch-card { border-top: 6px solid var(--pia-border); }
+html[data-theme="dark"] .lunch-card.misha { border-top-color: var(--misha-border); }
+html[data-theme="dark"] .lunch-card.no-school { border: 2px dashed #F59E0B; border-top: 6px solid #F59E0B; }
+
+/* Fix (Nov 4, user screenshots): Settings notification buttons were
+   inline pills that wrapped and squished against each other. Stack
+   them full-width, one per line, like the other action buttons. */
+#view-settings > button { display: block; width: 100%; margin: 0.4rem 0; text-align: center; }
+
+/* Desktop bottom nav: icon-only on phones, icon + text label on
+   desktop (900px breakpoint), where there is room for both. Labels
+   are visual only — aria-labels still carry the names for AT. */
+.bottomnav .nav-label { display: none; }
+@media (min-width: 900px) {
+  .bottomnav .nav-label { display: inline; margin-left: 0.4rem; font-size: 0.9rem; }
+  .bottomnav button { flex: none; padding: 0.65rem 1rem; }
+}
