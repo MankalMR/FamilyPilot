@@ -12,7 +12,9 @@ h1, h2, .title, .main-dish { font-weight: 800; }
 button, input, select, textarea { touch-action: manipulation; }
 main { max-width: 620px; margin: 0 auto; padding: 1rem 1rem calc(6rem + env(safe-area-inset-bottom, 0px)); padding-left: max(1rem, env(safe-area-inset-left, 0px)); padding-right: max(1rem, env(safe-area-inset-right, 0px)); }
 h1 { font-size: clamp(1.5rem, 5vw, 2rem); margin: 0; }
-.site-head { display: flex; align-items: center; gap: 0.75rem; }
+.site-head { display: flex; flex-direction: column; align-items: flex-start; gap: 0.25rem; }
+.site-title-row { display: flex; align-items: center; gap: 0.75rem; }
+.site-date { margin: 0; color: var(--muted); font-size: 0.9rem; }
 .site-logo { width: 48px; height: 48px; border-radius: 12px; flex: none; box-shadow: var(--shadow); }
 .pill svg { width: 14px; height: 14px; flex: none; }
 .pill.form_to_sign { background: #E6F4F2; color: #0F766E; }
