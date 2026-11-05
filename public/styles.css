@@ -92,7 +92,7 @@ h2 { font-size: 1.15rem; margin-top: 1.25rem; }
 .pill.event { background: #E0E7FF; color: #1E40AF; }
 .title { font-weight: 800; }
 .due { color: var(--muted); font-size: 0.9rem; }
-button { font-size: 1rem; padding: 0.55rem 0.9rem; border: 1px solid #333; border-radius: 999px; background: #fff; cursor: pointer; }
+button { font-size: 1rem; padding: 0.55rem 0.9rem; border: 1px solid #333; border-radius: 999px; background: #fff; color: var(--ink); cursor: pointer; }
 button.active { background: var(--ink); color: #fff; }
 .seg { display: flex; background: #F3F4F6; border-radius: 999px; padding: 4px; gap: 4px; margin-top: 0.6rem; }
 .seg button { flex: 1; border: none; border-radius: 999px; padding: 0.6rem 0.3rem; font-size: 0.85rem; background: transparent; color: var(--muted); font-weight: 700; }
@@ -223,7 +223,7 @@ html[data-theme="dark"] .summary { background: #2A2620; }
 #more-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); z-index: 90; }
 #more-menu { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-radius: 20px 20px 0 0; padding: 0.75rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px)); z-index: 100; box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2); }
 .more-grip { width: 40px; height: 4px; border-radius: 999px; background: var(--muted); margin: 0 auto 0.5rem; }
-.more-option { display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem; width: 100%; background: transparent; border: none; border-bottom: 1px solid #E5E0D5; border-radius: 0; padding: 0.9rem 0.25rem; text-align: left; }
+.more-option { display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem; width: 100%; background: transparent; border: none; border-bottom: 1px solid #E5E0D5; border-radius: 0; padding: 0.9rem 0.25rem; text-align: left; color: var(--ink); }
 .more-option-title { font-weight: 800; font-size: 1rem; }
 .more-option-sub { font-size: 0.9rem; color: var(--muted); font-weight: 400; }
 #more-cancel { display: block; width: 100%; background: transparent; border: none; color: var(--muted); padding: 0.9rem; text-align: center; }
