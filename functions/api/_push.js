@@ -20,20 +20,23 @@
 // - Test push (isTest): notify all subscribers, bypassing prefs.
 // Per-type prefs (notification_prefs): a row with enabled=0 silences
 // that event type for that user; no row means the default below.
-// Defaults (user-confirmed Nov 3, 2026): new_item, status_change,
-// lunch_plan_change and lunch_change ON; menu_load OFF (a monthly
-// import touches 30+ days, so imports are batched to ONE push, and
-// only if the user turns menu_load on).
+// Defaults (user-confirmed Nov 3, 2026, plus Nov 4 for records):
+// new_item, status_change, lunch_plan_change, lunch_change and
+// new_record ON; menu_load OFF (a monthly import touches 30+
+// days, so imports are batched to ONE push, and only if the user
+// turns menu_load on). A missing pref row means the default, so
+// new_record is ON for existing subscriptions with no row.
 // VAPID_PRIVATE_KEY must be a JWK JSON string (EC P-256, with d)
 // set as a Pages secret — never in the repo.
 
-export const EVENT_TYPES = ["new_item", "status_change", "lunch_plan_change", "lunch_change", "menu_load"];
+export const EVENT_TYPES = ["new_item", "status_change", "lunch_plan_change", "lunch_change", "menu_load", "new_record"];
 export const EVENT_DEFAULTS = {
   new_item: 1,
   status_change: 1,
   lunch_plan_change: 1,
   lunch_change: 1,
   menu_load: 0,
+  new_record: 1,
 };
 export const EVENT_LABELS = {
   new_item: "New item",
@@ -41,6 +44,7 @@ export const EVENT_LABELS = {
   lunch_plan_change: "Lunch plan change",
   lunch_change: "Lunch day change",
   menu_load: "Menu load",
+  new_record: "New record",
 };
 
 function b64url(bytes) {
