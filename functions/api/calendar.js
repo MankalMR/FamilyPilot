@@ -1,6 +1,11 @@
 // GET /api/calendar?from=YYYY-MM-DD&to=YYYY-MM-DD — list mirrored
-// calendar events in the window, plus last_synced (the newest
-// updated_at among mirrored rows). Read-only by design: calendar
+// calendar events in the window, plus last_synced. last_synced is
+// the meta heartbeat the sync job writes on EVERY successful run
+// (meta key 'calendar_last_sync', UTC datetime), so it moves even
+// on a no-change run — reading max(updated_at) instead would go
+// stale on a quiet stretch, because no row is written then. The
+// max(updated_at) fallback covers syncs that predate the heartbeat.
+// Read-only by design: calendar
 // events are written only by the Parent Muse sync job, which reads
 // Google Calendar (user decision Nov 5, 2026 — Google only, never
 // ICS feeds directly) and upserts into calendar_events. The site
@@ -25,10 +30,10 @@ export async function onRequestGet(context) {
   sql += " ORDER BY start_date ASC, start_time ASC, id ASC";
   const { results } = await context.env.DB.prepare(sql).bind(...params).all();
   const events = results || [];
-  let lastSynced = null;
-  for (const e of events) {
-    if (e.updated_at && (!lastSynced || e.updated_at > lastSynced)) lastSynced = e.updated_at;
-  }
+  const hb = await context.env.DB.prepare(
+    "SELECT value FROM meta WHERE key = 'calendar_last_sync'"
+  ).first();
+  let lastSynced = hb ? hb.value : null;
   if (!lastSynced) {
     const row = await context.env.DB.prepare(
       "SELECT MAX(updated_at) AS m FROM calendar_events"

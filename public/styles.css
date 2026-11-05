@@ -59,7 +59,10 @@ h2 { font-size: 1.15rem; margin-top: 1.25rem; }
 .filter { display: flex; background: var(--card); border-radius: 999px; padding: 4px; gap: 4px; box-shadow: var(--shadow); margin: 1rem 0; }
 .filter button { flex: 1; border: none; border-radius: 999px; padding: 0.7rem 0.4rem; font-size: 1rem; cursor: pointer; background: transparent; color: var(--muted); font-weight: 700; }
 .filter button.on { background: var(--ink); color: #fff; }
-.show-lunch, .show-calendar { display: block; background: var(--card); border-radius: 12px; box-shadow: var(--shadow); padding: 0.7rem 1rem; margin: 1rem 0; font-weight: 700; cursor: pointer; }
+/* Show lunch / Show calendar sit side by side in one row, not
+   stacked as two full-width cards. */
+.show-toggles { display: flex; gap: 0.6rem; margin: 1rem 0; }
+.show-lunch, .show-calendar { flex: 1; min-width: 0; display: block; background: var(--card); border-radius: 12px; box-shadow: var(--shadow); padding: 0.7rem 0.75rem; margin: 0; font-size: 0.95rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .show-lunch input, .show-calendar input { width: auto; margin-right: 0.5rem; transform: scale(1.25); accent-color: var(--misha-border); }
 /* Calendar events are display-only mirror rows: no checkbox, no
    action buttons. Family (unattributed) events get a neutral grey
