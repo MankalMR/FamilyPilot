@@ -59,8 +59,12 @@ h2 { font-size: 1.15rem; margin-top: 1.25rem; }
 .filter { display: flex; background: var(--card); border-radius: 999px; padding: 4px; gap: 4px; box-shadow: var(--shadow); margin: 1rem 0; }
 .filter button { flex: 1; border: none; border-radius: 999px; padding: 0.7rem 0.4rem; font-size: 1rem; cursor: pointer; background: transparent; color: var(--muted); font-weight: 700; }
 .filter button.on { background: var(--ink); color: #fff; }
-.show-lunch { display: block; background: var(--card); border-radius: 12px; box-shadow: var(--shadow); padding: 0.7rem 1rem; margin: 1rem 0; font-weight: 700; cursor: pointer; }
-.show-lunch input { width: auto; margin-right: 0.5rem; transform: scale(1.25); accent-color: var(--misha-border); }
+.show-lunch, .show-calendar { display: block; background: var(--card); border-radius: 12px; box-shadow: var(--shadow); padding: 0.7rem 1rem; margin: 1rem 0; font-weight: 700; cursor: pointer; }
+.show-lunch input, .show-calendar input { width: auto; margin-right: 0.5rem; transform: scale(1.25); accent-color: var(--misha-border); }
+/* Calendar events are display-only mirror rows: no checkbox, no
+   action buttons. Family (unattributed) events get a neutral grey
+   top border instead of a kid colour. */
+.calendar-card.family { border-top-color: #8A8A8A; }
 .card { background: var(--card); border-radius: 16px; box-shadow: var(--shadow); padding: 0.9rem; margin: 0.6rem 0; }
 .card p { margin: 0.4rem 0; }
 .card .meta { display: block; color: var(--muted); font-size: 0.9rem; }
@@ -152,7 +156,7 @@ pre { background: #f2f2f2; padding: 0.75rem; border-radius: 8px; overflow-x: aut
    Elevation = card surface + 1px border, no shadow. Selected pills
    flip to cream bg + ink text, so selection stays unmistakable. */
 html[data-theme="dark"] .card, html[data-theme="dark"] .summary,
-html[data-theme="dark"] .filter, html[data-theme="dark"] .show-lunch {
+html[data-theme="dark"] .filter, html[data-theme="dark"] .show-lunch, html[data-theme="dark"] .show-calendar {
   border: 1px solid #3A352E; box-shadow: none;
 }
 html[data-theme="dark"] .site-logo { box-shadow: none; border: 1px solid #3A352E; }
@@ -193,6 +197,7 @@ html[data-theme="dark"] .bottomnav button.on { background: #FFF8F1; color: #1F29
    plus the no-school widths the shorthand also swallowed. */
 html[data-theme="dark"] .item-card { border-top: 6px solid var(--pia-border); }
 html[data-theme="dark"] .item-card.misha { border-top-color: var(--misha-border); }
+html[data-theme="dark"] .calendar-card.family { border-top-color: #8A8A8A; }
 html[data-theme="dark"] .lunch-card { border-top: 6px solid var(--pia-border); }
 html[data-theme="dark"] .lunch-card.misha { border-top-color: var(--misha-border); }
 html[data-theme="dark"] .lunch-card.no-school { border: 2px dashed #F59E0B; border-top: 6px solid #F59E0B; }

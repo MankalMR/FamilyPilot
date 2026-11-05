@@ -22,7 +22,12 @@ const PLANS = [
   { value: "pack", label: "Pack lunch" },
 ];
 let filterKid = "all";
-let showLunch = false; // checkbox: show lunch or not (unchecked by default). Items are always shown.
+// Show lunch / Show calendar are display toggles, persisted per
+// device (localStorage, like the theme) — user decision Nov 5,
+// 2026. Both start unchecked: lunch as before, calendar unchecked
+// while the mirror is being tested. Items are always shown.
+let showLunch = localStorage.getItem("family-pilot-show-lunch") === "1";
+let showCalendar = localStorage.getItem("family-pilot-show-calendar") === "1";
 // VAPID public key for push subscriptions (spike). The matching private
 // JWK is a Pages secret (VAPID_PRIVATE_KEY), never in the repo.
 const VAPID_PUBLIC_KEY = "BE_-RxVbDf3GqCin_DzFOfzTAZgyKyyB8-6Gw6HnZYsx5wlSc04DVzM8wg1dpqSgulDTmA8hnNuMQM_YJFCF8yw";
@@ -136,8 +141,34 @@ async function api(path, options) {
 
 let items = [];
 let lunch = [];
+let calendarEvents = [];
+let lastSynced = null;
 let editingItemId = null;
 let editingLunchId = null;
+
+// Calendar mirror (approved Nov 5, 2026): display-only rows from
+// Google Calendar, in their own D1 table. No checkbox, no action
+// buttons, no alerts, no push. Family (unattributed) events show
+// only under the Both-kids filter — never guessed to a kid.
+function fmtTime(t) {
+  if (!t) return "";
+  const [h, m] = t.split(":").map(Number);
+  const ap = h >= 12 ? "PM" : "AM";
+  const hr = h % 12 === 0 ? 12 : h % 12;
+  return `${hr}:${String(m).padStart(2, "0")} ${ap}`;
+}
+function calVisible(ev) {
+  if (!showCalendar) return false;
+  if (ev.child === "family") return filterKid === "all";
+  return kidVisible(ev.child);
+}
+function calendarCard(ev) {
+  const who = ev.child === "family" ? "Family" : ev.child === "pia" ? "Pia" : "Misha";
+  const when = ev.all_day ? "All day" : fmtTime(ev.start_time) + (ev.end_time ? " – " + fmtTime(ev.end_time) : "");
+  return `<div class="card item-card calendar-card ${esc(ev.child)}">
+    <div class="kid-head"><div class="avatar">${who === "Family" ? "F" : who[0]}</div><div><div class="card-title-row"><span class="title">${esc(ev.title)}</span>${pill("event", "calendar")}</div><span class="meta">${esc(who)} · ${esc(when)}${ev.location ? " · " + esc(ev.location) : ""}${ev.calendar_name ? " · " + esc(ev.calendar_name) : ""}</span></div></div>
+  </div>`;
+}
 
 function lunchCard(day, kid) {
   if (!day) {
@@ -188,6 +219,9 @@ function render() {
   const today = etToday();
   const weekEnd = addDays(today, 13);
   document.getElementById("today-line").textContent = fmtDate(today) + " (ET)";
+  // Keep the persisted toggles in sync with their checkboxes.
+  document.getElementById("show-lunch").checked = showLunch;
+  document.getElementById("show-calendar").checked = showCalendar;
 
   // Summary, recounted for the current kid filter.
   const openToday = items.filter((i) => kidVisible(i.child) && i.status === "open" && i.due_date <= today);
@@ -214,6 +248,24 @@ function render() {
   document.getElementById("today-items").innerHTML =
     openToday.length ? openToday.map(itemCard).join("") : "<p>No open items due today or overdue.</p>";
 
+  // Today's calendar, only when Show calendar is on. School items
+  // have no time, so they stay in their block above; timed calendar
+  // events list below in time order. The summary above stays
+  // school-only — calendar events never count toward it.
+  document.getElementById("today-calendar-heading").hidden = !showCalendar;
+  document.getElementById("calendar-sync-line").hidden = !showCalendar;
+  if (showCalendar) {
+    document.getElementById("calendar-sync-line").textContent = lastSynced
+      ? "Calendar synced " + fmtDateTimeET(lastSynced) + " · Google Calendar is the source"
+      : "Calendar not synced yet — the next sync will fill this in.";
+    const todayCal = calendarEvents.filter((ev) => ev.start_date === today && calVisible(ev))
+      .sort((a, b) => (a.start_time || "") < (b.start_time || "") ? -1 : 1);
+    document.getElementById("today-calendar").innerHTML =
+      todayCal.length ? todayCal.map(calendarCard).join("") : "<p>No calendar events today.</p>";
+  } else {
+    document.getElementById("today-calendar").innerHTML = "";
+  }
+
   // Next 14 days, grouped by day.
   const showDone = document.getElementById("show-done").checked;
   let weekHtml = "";
@@ -232,8 +284,11 @@ function render() {
     // Overdue open items also appear on the first day, so they are not lost.
     const extra = i === 0 ? items.filter((it) => kidVisible(it.child) && it.status === "open" && it.due_date < today) : [];
     const dayItemsHtml = [...extra, ...dayItems].map(itemCard).join("");
-    if (dayLunch || dayItemsHtml) {
-      weekHtml += `<p class="day-head">${fmtDate(d)}${d === today ? " <span>— today</span>" : ""}</p>` + dayLunch + dayItemsHtml;
+    const dayCalHtml = calendarEvents.filter((ev) => ev.start_date === d && calVisible(ev))
+      .sort((a, b) => (a.start_time || "") < (b.start_time || "") ? -1 : 1)
+      .map(calendarCard).join("");
+    if (dayLunch || dayItemsHtml || dayCalHtml) {
+      weekHtml += `<p class="day-head">${fmtDate(d)}${d === today ? " <span>— today</span>" : ""}</p>` + dayLunch + dayItemsHtml + dayCalHtml;
     }
   }
   document.getElementById("week-days").innerHTML = weekHtml || "<p>No lunch days or items in this window yet.</p>";
@@ -540,6 +595,17 @@ async function load() {
   ]);
   items = itemData.items;
   lunch = lunchData.lunch;
+  // Calendar is non-fatal: if the mirror endpoint is not deployed
+  // yet (or the table is empty before the first sync), the page
+  // still loads with school data and an empty calendar.
+  try {
+    const calData = await api(`/api/calendar?from=${today}&to=${weekEnd}`);
+    calendarEvents = calData.events || [];
+    lastSynced = calData.last_synced || null;
+  } catch {
+    calendarEvents = [];
+    lastSynced = null;
+  }
   render();
 }
 
@@ -574,6 +640,12 @@ document.getElementById("filter-misha").addEventListener("click", () => setFilte
 
 document.getElementById("show-lunch").addEventListener("change", (e) => {
   showLunch = e.target.checked;
+  localStorage.setItem("family-pilot-show-lunch", showLunch ? "1" : "0");
+  render();
+});
+document.getElementById("show-calendar").addEventListener("change", (e) => {
+  showCalendar = e.target.checked;
+  localStorage.setItem("family-pilot-show-calendar", showCalendar ? "1" : "0");
   render();
 });
 
