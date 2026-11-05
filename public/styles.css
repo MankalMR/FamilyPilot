@@ -4,6 +4,12 @@
   --pia: #C96F4A; --pia-soft: #FDF0E9; --misha: #0F766E; --misha-soft: #E6F4F2;
   --pia-border: #C96F4A; --pia-avatar: #C96F4A; --pia-soft-text: #9A4A2A;
   --misha-border: #0F766E; --misha-avatar: #0F766E; --misha-soft-text: #0F766E;
+  /* Family four-colour border (approved Nov 5, 2026): blue Dad,
+     pink Mom, terracotta Pia, teal Misha. Mom's pink is #DB2777
+     here — deliberately NOT #F472B6, which is the pending Misha
+     colour in the unapproved kid-swap. */
+  --family-gradient: linear-gradient(to right, #3B82F6 0 25%, #DB2777 25% 50%, #C96F4A 50% 75%, #0F766E 75% 100%);
+  --family-avatar-gradient: linear-gradient(135deg, #3B82F6 0 25%, #DB2777 25% 50%, #C96F4A 50% 75%, #0F766E 75% 100%);
   --link: #0F766E; --error: #991B1B; --success: #14532D;
   --shadow: 0 6px 24px rgba(31, 41, 55, .08);
   color-scheme: light;
@@ -19,6 +25,8 @@ html[data-theme="dark"] {
   --misha: #2AB3A0; --misha-soft: rgba(15, 118, 110, 0.22);
   --pia-border: #E08A63; --pia-avatar: #C96F4A; --pia-soft-text: #E8A07F;
   --misha-border: #2AB3A0; --misha-avatar: #0F766E; --misha-soft-text: #5ED3C3;
+  --family-gradient: linear-gradient(to right, #60A5FA 0 25%, #EC4899 25% 50%, #E08A63 50% 75%, #2AB3A0 75% 100%);
+  --family-avatar-gradient: linear-gradient(135deg, #60A5FA 0 25%, #EC4899 25% 50%, #E08A63 50% 75%, #2AB3A0 75% 100%);
   --link: #5ED3C3; --error: #F87171; --success: #86EFAC;
   --shadow: none;
   color-scheme: dark;
@@ -65,9 +73,16 @@ h2 { font-size: 1.15rem; margin-top: 1.25rem; }
 .show-lunch, .show-calendar { flex: 1; min-width: 0; display: block; background: var(--card); border-radius: 12px; box-shadow: var(--shadow); padding: 0.7rem 0.75rem; margin: 0; font-size: 0.95rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .show-lunch input, .show-calendar input { width: auto; margin-right: 0.5rem; transform: scale(1.25); accent-color: var(--misha-border); }
 /* Calendar events are display-only mirror rows: no checkbox, no
-   action buttons. Family (unattributed) events get a neutral grey
-   top border instead of a kid colour. */
-.calendar-card.family { border-top-color: #8A8A8A; }
+   action buttons. Family (unattributed) events get a four-colour
+   top border — blue Dad, pink Mom, terracotta Pia, teal Misha —
+   instead of a kid colour (approved Nov 5, 2026). A border can't
+   hold four colours, so the card's 6px top border goes transparent
+   and the gradient rides on a ::before stripe, the same technique
+   as the glance card. The F avatar carries the same gradient so
+   it stops reading as Pia's terracotta. */
+.calendar-card.family { position: relative; border-top-color: transparent; overflow: hidden; }
+.calendar-card.family::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--family-gradient); border-radius: 16px 16px 0 0; }
+.calendar-card.family .avatar { background: var(--family-avatar-gradient); text-shadow: 0 1px 2px rgba(0, 0, 0, .4); }
 .card { background: var(--card); border-radius: 16px; box-shadow: var(--shadow); padding: 0.9rem; margin: 0.6rem 0; }
 .card p { margin: 0.4rem 0; }
 .card .meta { display: block; color: var(--muted); font-size: 0.9rem; }
@@ -200,7 +215,6 @@ html[data-theme="dark"] .bottomnav button.on { background: #FFF8F1; color: #1F29
    plus the no-school widths the shorthand also swallowed. */
 html[data-theme="dark"] .item-card { border-top: 6px solid var(--pia-border); }
 html[data-theme="dark"] .item-card.misha { border-top-color: var(--misha-border); }
-html[data-theme="dark"] .calendar-card.family { border-top-color: #8A8A8A; }
 html[data-theme="dark"] .lunch-card { border-top: 6px solid var(--pia-border); }
 html[data-theme="dark"] .lunch-card.misha { border-top-color: var(--misha-border); }
 html[data-theme="dark"] .lunch-card.no-school { border: 2px dashed #F59E0B; border-top: 6px solid #F59E0B; }
