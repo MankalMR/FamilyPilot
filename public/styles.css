@@ -80,8 +80,17 @@ h2 { font-size: 1.15rem; margin-top: 1.25rem; }
    and the gradient rides on a ::before stripe, the same technique
    as the glance card. The F avatar carries the same gradient so
    it stops reading as Pia's terracotta. */
-.calendar-card.family { position: relative; border-top-color: transparent; overflow: hidden; }
-.calendar-card.family::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--family-gradient); border-radius: 16px 16px 0 0; }
+/* BUGFIX Nov 5: the first version used border-top-color: transparent
+   on .calendar-card.family (0,2,0), but the dark-mode .item-card
+   rule is html[data-theme="dark"] .item-card (0,2,1) and beat it,
+   so Pia's terracotta 6px border kept painting above the stripe in
+   dark mode. Two changes: the selector is now .item-card.calendar-
+   card.family (0,3,0), which beats both light and dark kid rules,
+   and the top border is removed entirely (border-top: 0) instead
+   of made transparent, so the stripe sits flush at the card's top
+   edge with no card-coloured gap above it. */
+.item-card.calendar-card.family { position: relative; border-top: 0; overflow: hidden; }
+.item-card.calendar-card.family::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--family-gradient); border-radius: 16px 16px 0 0; }
 .calendar-card.family .avatar { background: var(--family-avatar-gradient); text-shadow: 0 1px 2px rgba(0, 0, 0, .4); }
 .card { background: var(--card); border-radius: 16px; box-shadow: var(--shadow); padding: 0.9rem; margin: 0.6rem 0; }
 .card p { margin: 0.4rem 0; }
