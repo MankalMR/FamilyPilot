@@ -240,17 +240,79 @@ function render() {
 }
 
 function showView(name) {
-  for (const v of ["today", "week", "history", "settings", "add"]) {
+  const views = ["today", "week", "history", "settings", "add", "records"];
+  const navFor = { today: "nav-today", week: "nav-week", add: "nav-add", history: "nav-more", settings: "nav-more", records: "nav-more" };
+  for (const v of views) {
     document.getElementById("view-" + v).hidden = v !== name;
-    document.getElementById("nav-" + v).classList.toggle("on", v === name);
+  }
+  for (const navId of ["nav-today", "nav-week", "nav-add", "nav-more"]) {
+    document.getElementById(navId).classList.toggle("on", navId === navFor[name]);
   }
   // Kid filter + Show lunch only mean anything on Today / Next 14
-  // days. They did nothing on Add, History, or Settings, so they
-  // are hidden there instead of sitting above an unrelated form.
+  // days. They did nothing on Add, History, Settings, or Records,
+  // so they are hidden there instead of sitting above an unrelated
+  // view. Records has its own Pia/Misha chooser.
   document.getElementById("view-controls").hidden = !(name === "today" || name === "week");
   if (name === "history") loadHistory();
   if (name === "settings") { loadPushPrefs(); applyTheme(); }
+  if (name === "records") loadRecords();
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// More menu: a bottom sheet over the current view. Tapping an
+// option closes the menu and opens that view; More stays selected
+// while in a More section, and tapping More again reopens the menu.
+function openMoreMenu() {
+  document.getElementById("more-backdrop").hidden = false;
+  document.getElementById("more-menu").hidden = false;
+}
+function closeMoreMenu() {
+  document.getElementById("more-backdrop").hidden = true;
+  document.getElementById("more-menu").hidden = true;
+}
+
+// Records: info-only reference records, per child. Never in Today
+// / Next Up, no due dates, no alerts. Rows are written by Parent
+// Muse scans directly to D1 (not via this API); this view only reads.
+let records = [];
+let recordsKid = "pia";
+async function loadRecords() {
+  try {
+    const data = await api("/api/records");
+    records = data.records || [];
+    renderRecords();
+  } catch (err) {
+    document.getElementById("records-list").innerHTML = "<p>Could not load records: " + esc(err.message) + "</p>";
+  }
+}
+function setRecordsKid(kid) {
+  recordsKid = kid;
+  for (const k of ["pia", "misha"]) {
+    document.getElementById("records-" + k).classList.toggle("on", k === kid);
+  }
+  renderRecords();
+}
+function recordCard(r) {
+  const kidClass = r.child === "misha" ? " misha" : "";
+  const detail = r.detail ? `<div class="record-detail" id="record-detail-${r.id}"><p>${esc(r.detail)}</p></div>` : "";
+  const pdf = r.pdf_url ? `<p><a class="linkbtn" href="${esc(r.pdf_url)}" target="_blank" rel="noopener">Open full report (PDF)</a></p>` : "";
+  const infoBtn = r.detail ? `<button type="button" class="linkbtn record-info-btn" data-id="${r.id}" aria-label="More info">ⓘ</button>` : "";
+  return `<article class="card item-card${kidClass}"><div class="card-title-row"><span class="title">${esc(r.title)}</span>${infoBtn}</div><span class="meta">As of ${fmtDate(r.as_of)} · Source: ${esc(r.source)}</span><p>${esc(r.summary)}</p>${detail}${pdf}</article>`;
+}
+function renderRecords() {
+  const list = document.getElementById("records-list");
+  const kidName = recordsKid === "pia" ? "Pia" : "Misha";
+  const kidRecords = records.filter((r) => r.child === recordsKid);
+  if (!kidRecords.length) {
+    list.innerHTML = `<div class="card"><p><b>No records yet for ${kidName}.</b></p><p class="sub">No PowerSchool or MAP report has been scanned for ${kidName} yet. When one arrives, it will appear here, per child, with its own as-of date and source.</p></div>`;
+    return;
+  }
+  list.innerHTML = kidRecords.map(recordCard).join("");
+  list.querySelectorAll(".record-info-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.getElementById("record-detail-" + btn.dataset.id).classList.toggle("open");
+    });
+  });
 }
 
 function fmtDateTimeET(text) {
@@ -483,9 +545,15 @@ async function load() {
 
 document.getElementById("nav-today").addEventListener("click", () => { setStatus(""); showView("today"); });
 document.getElementById("nav-week").addEventListener("click", () => { setStatus(""); showView("week"); });
-document.getElementById("nav-history").addEventListener("click", () => { setStatus(""); showView("history"); });
-document.getElementById("nav-settings").addEventListener("click", () => { setStatus(""); showView("settings"); });
 document.getElementById("nav-add").addEventListener("click", () => { setStatus(""); showView("add"); });
+document.getElementById("nav-more").addEventListener("click", openMoreMenu);
+document.getElementById("more-backdrop").addEventListener("click", closeMoreMenu);
+document.getElementById("more-cancel").addEventListener("click", closeMoreMenu);
+document.querySelectorAll(".more-option").forEach((btn) => {
+  btn.addEventListener("click", () => { closeMoreMenu(); setStatus(""); showView(btn.dataset.view); });
+});
+document.getElementById("records-pia").addEventListener("click", () => setRecordsKid("pia"));
+document.getElementById("records-misha").addEventListener("click", () => setRecordsKid("misha"));
 document.getElementById("add-item-tab").addEventListener("click", () => showAddPane("item"));
 document.getElementById("add-lunch-tab").addEventListener("click", () => showAddPane("lunch"));
 document.getElementById("enable-push").addEventListener("click", enableNotifications);

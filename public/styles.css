@@ -215,3 +215,20 @@ html[data-theme="dark"] .lunch-card.no-school { border: 2px dashed #F59E0B; bord
    (#2A2620 vs the regular card #23201B) so it lifts off the page
    without bringing shadows back. */
 html[data-theme="dark"] .summary { background: #2A2620; }
+
+/* More menu (approved Nov 4): a bottom sheet over the current view,
+   not a hub view. Tapping an option closes the menu and opens that
+   view; More stays selected while in a More section. */
+.bottomnav .nav-more-dots { font-size: 1.5rem; line-height: 1; font-weight: 800; }
+#more-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); z-index: 90; }
+#more-menu { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-radius: 20px 20px 0 0; padding: 0.75rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px)); z-index: 100; box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2); }
+.more-grip { width: 40px; height: 4px; border-radius: 999px; background: var(--muted); margin: 0 auto 0.5rem; }
+.more-option { display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem; width: 100%; background: transparent; border: none; border-bottom: 1px solid #E5E0D5; border-radius: 0; padding: 0.9rem 0.25rem; text-align: left; }
+.more-option-title { font-weight: 800; font-size: 1rem; }
+.more-option-sub { font-size: 0.9rem; color: var(--muted); font-weight: 400; }
+#more-cancel { display: block; width: 100%; background: transparent; border: none; color: var(--muted); padding: 0.9rem; text-align: center; }
+html[data-theme="dark"] .more-option { background: transparent; border-bottom-color: #3A352E; }
+html[data-theme="dark"] #more-cancel { background: transparent; }
+/* Records: detail is hidden until the ⓘ button opens it inline. */
+.record-detail { display: none; color: var(--muted); font-size: 0.95rem; }
+.record-detail.open { display: block; }
