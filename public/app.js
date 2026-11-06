@@ -347,11 +347,11 @@ function render() {
   // one tab. Same cards as today, so Mark done, lunch plans and
   // delete (with Undo) all work inline here. Done items for
   // tomorrow show only when "Show done items" is on, as above.
-  // Both days get a label in the same format; the day head already
-  // says which day it is, so the subsection headings inside a band
-  // don't repeat it ("Lunch", not "Today's lunch").
-  document.getElementById("today-heading").textContent = "Today · " + fmtDate(today);
-  document.getElementById("tomorrow-heading").textContent = "Tomorrow · " + fmtDate(tomorrow);
+  // Day heads are static "Today" / "Tomorrow" in the HTML — no
+  // date (user, Nov 5). The header already shows today's date,
+  // and the day head already says which day it is, so the
+  // subsection headings inside a band don't repeat it either
+  // ("Lunch", not "Today's lunch").
   document.getElementById("tomorrow-lunch-heading").hidden = !showLunch;
   document.getElementById("tomorrow-kids").innerHTML = showLunch ? (KIDS.filter((k) => kidVisible(k.value)).map((k) => {
     const day = lunch.find((l) => l.child === k.value && l.date === tomorrow);
