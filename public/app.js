@@ -347,6 +347,10 @@ function render() {
   // one tab. Same cards as today, so Mark done, lunch plans and
   // delete (with Undo) all work inline here. Done items for
   // tomorrow show only when "Show done items" is on, as above.
+  // Both days get a label in the same format; the day head already
+  // says which day it is, so the subsection headings inside a band
+  // don't repeat it ("Lunch", not "Today's lunch").
+  document.getElementById("today-heading").textContent = "Today · " + fmtDate(today);
   document.getElementById("tomorrow-heading").textContent = "Tomorrow · " + fmtDate(tomorrow);
   document.getElementById("tomorrow-lunch-heading").hidden = !showLunch;
   document.getElementById("tomorrow-kids").innerHTML = showLunch ? (KIDS.filter((k) => kidVisible(k.value)).map((k) => {
@@ -389,7 +393,12 @@ function render() {
       .sort((a, b) => (a.start_time || "") < (b.start_time || "") ? -1 : 1)
       .map(calendarCard).join("");
     if (dayLunch || dayItemsHtml || dayCalHtml) {
-      weekHtml += `<p class="day-head">${fmtDate(d)}</p>` + dayLunch + dayItemsHtml + dayCalHtml;
+      // Day bands alternate warm/cool, continuing the Today-tab
+      // sequence (day 1 warm, day 2 cool), so neighbouring days
+      // always differ: i is the 0-based offset from today, so
+      // i even means an odd day number, which is warm.
+      const band = i % 2 === 0 ? "band-warm" : "band-cool";
+      weekHtml += `<div class="day-band ${band}"><p class="day-head">${fmtDate(d)}</p>` + dayLunch + dayItemsHtml + dayCalHtml + `</div>`;
     }
   }
   document.getElementById("week-days").innerHTML = weekHtml || "<p>No lunch days or items in this window yet.</p>";

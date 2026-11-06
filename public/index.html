@@ -46,21 +46,26 @@
     <p id="status" role="status"></p>
 
     <section id="view-today">
-      <div class="summary" id="today-summary"></div>
-      <h2 id="today-lunch-heading">Today's lunch</h2>
-      <div id="today-kids"></div>
-      <h2 id="today-items-heading">Items due today or overdue</h2>
-      <div id="today-items"></div>
-      <h2 id="today-calendar-heading">Today's calendar</h2>
-      <p id="calendar-sync-line" class="sub"></p>
-      <div id="today-calendar"></div>
-      <p class="day-head" id="tomorrow-heading">Tomorrow</p>
-      <h2 id="tomorrow-lunch-heading">Tomorrow's lunch</h2>
-      <div id="tomorrow-kids"></div>
-      <h2 id="tomorrow-items-heading">Items due tomorrow</h2>
-      <div id="tomorrow-items"></div>
-      <h2 id="tomorrow-calendar-heading">Tomorrow's calendar</h2>
-      <div id="tomorrow-calendar"></div>
+      <div class="day-band band-warm">
+        <p class="day-head" id="today-heading">Today</p>
+        <div class="summary" id="today-summary"></div>
+        <h2 id="today-lunch-heading">Lunch</h2>
+        <div id="today-kids"></div>
+        <h2 id="today-items-heading">Items due or overdue</h2>
+        <div id="today-items"></div>
+        <h2 id="today-calendar-heading">Calendar</h2>
+        <p id="calendar-sync-line" class="sub"></p>
+        <div id="today-calendar"></div>
+      </div>
+      <div class="day-band band-cool">
+        <p class="day-head" id="tomorrow-heading">Tomorrow</p>
+        <h2 id="tomorrow-lunch-heading">Lunch</h2>
+        <div id="tomorrow-kids"></div>
+        <h2 id="tomorrow-items-heading">Items due</h2>
+        <div id="tomorrow-items"></div>
+        <h2 id="tomorrow-calendar-heading">Calendar</h2>
+        <div id="tomorrow-calendar"></div>
+      </div>
     </section>
 
     <section id="view-week" hidden>

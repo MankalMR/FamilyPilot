@@ -179,8 +179,31 @@ button.active { background: var(--ink); color: #fff; }
 .row-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem; }
 .row-actions button { font-size: 0.9rem; padding: 0.4rem 0.7rem; }
 .row-actions button.danger { background: #FEE2E2; color: #991B1B; border-color: #991B1B; font-weight: 700; }
-.day-head { font-weight: 800; margin: 1.25rem 0 0; }
+/* Day bands (Option 2, approved Nov 5, Spark): alternating warm /
+   cool tints by day — Today warm, Tomorrow cool, continuing into
+   Next Up (day 3 warm, day 4 cool, ...), so neighbouring days
+   always differ. The tints are day-based and desaturated, not kid
+   colours. The day head owns the big break (1.25rem + a rule
+   underneath in a deeper tint); subsection headings inside a band
+   drop to small muted caps and don't repeat the day — the day
+   head already says which day it is. Cards inside bands are
+   unchanged (white in light, #23201B in dark). */
+.day-band { border-radius: 20px; padding: 20px 20px 24px; }
+.day-band.band-warm { background: #FDE9D3; }
+.day-band.band-cool { background: #E9F2EF; }
+#view-today .day-band + .day-band { margin-top: 24px; }
+#week-days .day-band + .day-band { margin-top: 20px; }
+html[data-theme="dark"] .day-band { border: 1px solid #3A352E; }
+html[data-theme="dark"] .day-band.band-warm { background: #241C15; }
+html[data-theme="dark"] .day-band.band-cool { background: #15201D; }
+.day-head { font-size: 1.25rem; font-weight: 800; margin: 0; padding-bottom: 0.5rem; border-bottom: 1px solid #D2BEA0; }
+.band-cool .day-head { border-bottom-color: #B4CDCC; }
+html[data-theme="dark"] .day-head { border-bottom-color: #3A352E; }
 .day-head span { color: var(--muted); font-weight: 600; }
+/* Subsection headings inside a band only — the summary h2 is
+   nested deeper, so it keeps its own 1.25rem rule. Muted here is
+   #6B7280 light / #A8A29A dark, i.e. var(--muted) in both themes. */
+.day-band > h2 { font-size: 0.9rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
 form label { display: block; margin: 0.6rem 0; font-weight: 600; }
 form input, form select, form textarea { display: block; box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; font-size: 1rem; padding: 0.55rem; border: 1px solid #999; border-radius: 10px; margin-top: 0.25rem; }
 /* iOS date/time controls ignore author box-sizing: their horizontal
