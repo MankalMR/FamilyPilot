@@ -98,6 +98,57 @@ function setStatus(msg, isError = false) {
   statusEl.textContent = isError ? friendlyError(msg) : (msg || "");
   statusEl.className = isError ? "error" : "";
 }
+
+// Action feedback (approved Nov 5, 2026): a tapped action shows a
+// spinner on its own button while the server confirms, then the
+// card animates — delete slides out, Done morphs in place.
+// Delete offers Undo for 5s: the row is re-created from a snapshot
+// taken before the delete (new server id, same content, including
+// status/plan; only the import `source` is not carried over).
+// Only one undo is pending at a time — a second delete replaces it.
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+let toastTimer = null;
+function setBusy(btn, busy) {
+  if (busy) {
+    btn.dataset.label = btn.textContent;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" aria-hidden="true"></span>';
+  } else {
+    btn.disabled = false;
+    btn.textContent = btn.dataset.label || btn.textContent;
+    delete btn.dataset.label;
+  }
+}
+function hideToast() {
+  clearTimeout(toastTimer);
+  document.getElementById("toast").hidden = true;
+}
+function showUndoToast(label, onUndo) {
+  const toast = document.getElementById("toast");
+  clearTimeout(toastTimer);
+  toast.innerHTML = "";
+  const span = document.createElement("span");
+  span.textContent = label;
+  const undoBtn = document.createElement("button");
+  undoBtn.type = "button";
+  undoBtn.textContent = "Undo";
+  undoBtn.addEventListener("click", async () => {
+    undoBtn.disabled = true;
+    hideToast();
+    await onUndo();
+  });
+  toast.append(span, undoBtn);
+  toast.hidden = false;
+  toastTimer = setTimeout(hideToast, 5000);
+}
+async function slideOutCard(card) {
+  // max-height must be a number to animate: pin the current height,
+  // then let .leaving collapse it to 0.
+  card.style.maxHeight = card.offsetHeight + "px";
+  void card.offsetHeight; // reflow so the pin takes before collapsing
+  card.classList.add("leaving");
+  await sleep(340);
+}
 function setFormStatus(elId, msg, isError = false) {
   const el = document.getElementById(elId);
   if (!el) return;
@@ -521,12 +572,32 @@ function wireCardActions(root) {
         setStatus("Lunch plan saved.");
       } else if (btn.dataset.toggleItem) {
         const it = items.find((x) => String(x.id) === btn.dataset.toggleItem);
-        await api(`/api/items/${btn.dataset.toggleItem}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: it && it.status === "done" ? "open" : "done" }),
-        });
+        if (!it) return;
+        const toDone = it.status !== "done";
+        setBusy(btn, true);
+        try {
+          await api(`/api/items/${btn.dataset.toggleItem}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: toDone ? "done" : "open" }),
+          });
+        } catch (err) {
+          setBusy(btn, false);
+          throw err;
+        }
+        // Server confirmed: morph the card in place (the .card.done
+        // dim + line-through animates via the .card transition),
+        // flip the button, then reload so the summary catches up —
+        // the re-rendered card looks identical to the morphed one.
+        it.status = toDone ? "done" : "open";
+        const card = btn.closest(".card");
+        if (card) card.classList.toggle("done", toDone);
+        setBusy(btn, false);
+        btn.textContent = toDone ? "Reopen" : "Mark done";
         setStatus("Item updated.");
+        await sleep(320);
+        await load();
+        return;
       } else if (btn.dataset.editItem) {
         const it = items.find((x) => String(x.id) === btn.dataset.editItem);
         if (!it) return;
@@ -561,8 +632,41 @@ function wireCardActions(root) {
           }, 3000);
           return;
         }
-        await api(`/api/items/${btn.dataset.deleteItem}`, { method: "DELETE" });
+        const itemId = btn.dataset.deleteItem;
+        const it = items.find((x) => String(x.id) === itemId);
+        const card = btn.closest(".card");
+        setBusy(btn, true);
+        try {
+          await api(`/api/items/${itemId}`, { method: "DELETE" });
+        } catch (err) {
+          setBusy(btn, false);
+          btn.dataset.confirming = "";
+          btn.textContent = "Delete";
+          btn.classList.remove("danger");
+          throw err;
+        }
+        // Server confirmed: slide the card out, drop it locally,
+        // and offer Undo (re-creates the row from the snapshot).
+        if (card) await slideOutCard(card);
+        items = items.filter((x) => String(x.id) !== itemId);
+        render();
         setStatus("Item deleted.");
+        if (it) {
+          showUndoToast("Item deleted.", async () => {
+            try {
+              await api("/api/items", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ child: it.child, title: it.title, category: it.category, due_date: it.due_date, due_time: it.due_time, details: it.details || "", status: it.status }),
+              });
+              setStatus("Item restored.");
+              await load();
+            } catch (err) {
+              setStatus(err.message, true);
+            }
+          });
+        }
+        return;
       } else if (btn.dataset.editLunch) {
         const day = lunch.find((x) => String(x.id) === btn.dataset.editLunch);
         if (!day) return;
@@ -593,8 +697,41 @@ function wireCardActions(root) {
           }, 3000);
           return;
         }
-        await api(`/api/lunch/${btn.dataset.deleteLunch}`, { method: "DELETE" });
-        setStatus("Lunch day deleted. A future import can recreate it, but its plan will be undecided.");
+        const lunchId = btn.dataset.deleteLunch;
+        const day = lunch.find((x) => String(x.id) === lunchId);
+        const card = btn.closest(".card");
+        setBusy(btn, true);
+        try {
+          await api(`/api/lunch/${lunchId}`, { method: "DELETE" });
+        } catch (err) {
+          setBusy(btn, false);
+          btn.dataset.confirming = "";
+          btn.textContent = "Delete";
+          btn.classList.remove("danger");
+          throw err;
+        }
+        // Server confirmed: slide the card out, drop it locally,
+        // and offer Undo (re-creates the day, plan included).
+        if (card) await slideOutCard(card);
+        lunch = lunch.filter((x) => String(x.id) !== lunchId);
+        render();
+        setStatus("Lunch day deleted.");
+        if (day) {
+          showUndoToast("Lunch day deleted.", async () => {
+            try {
+              await api("/api/lunch", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ child: day.child, date: day.date, menu_text: day.menu_text || "", no_school: !!day.no_school, plan: day.plan || "undecided", note: day.note || "" }),
+              });
+              setStatus("Lunch day restored.");
+              await load();
+            } catch (err) {
+              setStatus(err.message, true);
+            }
+          });
+        }
+        return;
       } else {
         return;
       }

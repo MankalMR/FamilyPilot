@@ -129,6 +129,21 @@ html[data-avatar-style="letters"] .avatar-letter { display: flex; }
 .card .note { color: var(--muted); font-size: 0.95rem; }
 .card.done { opacity: 0.65; }
 .card.done .title { text-decoration: line-through; }
+/* Action feedback (approved Nov 5, 2026): a tapped action shows a
+   spinner on its own button while the server confirms, then the
+   card animates — delete slides left, fades and collapses; Done
+   morphs in place through the .card.done dim + line-through above.
+   The transition lives on .card so both directions animate. */
+.card { transition: opacity .3s ease, transform .32s ease, max-height .32s ease, margin .32s ease, padding .32s ease; }
+.card.leaving { transform: translateX(-48px); opacity: 0; max-height: 0; margin: 0; padding-top: 0; padding-bottom: 0; overflow: hidden; }
+.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(128, 128, 128, .35); border-top-color: currentColor; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -2px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+/* Undo toast: fixed above the bottom nav, dark pill with an Undo
+   action. It is a snackbar, so the dark colours are constant in
+   both themes. Hidden with [hidden] until a delete offers Undo. */
+.toast { position: fixed; left: 1rem; right: 1rem; bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); z-index: 60; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; background: #23201B; color: #F5F0E8; border: 1px solid #3A352E; border-radius: 12px; padding: 0.75rem 1rem; box-shadow: 0 8px 24px rgba(0, 0, 0, .35); font-size: 0.95rem; }
+.toast[hidden] { display: none; }
+.toast button { background: none; border: none; color: #5ED3C3; font-weight: 800; font-size: 0.95rem; padding: 0.25rem 0; cursor: pointer; }
 .lunch-card { border-top: 6px solid var(--pia-border); }
 .lunch-card.misha { border-top-color: var(--misha-border); }
 .lunch-card.no-school { border: 2px dashed #D97706; border-top: 6px solid #D97706; background: #FFFBEB; text-align: center; }
