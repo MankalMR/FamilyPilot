@@ -67,13 +67,16 @@ h2 { font-size: 1.15rem; margin-top: 1.25rem; }
 .filter { display: flex; background: var(--card); border-radius: 999px; padding: 4px; gap: 4px; box-shadow: var(--shadow); margin: 1rem 0; }
 .filter button { flex: 1; min-width: 0; border: none; border-radius: 999px; padding: 0.5rem 0.4rem; font-size: 1rem; cursor: pointer; background: transparent; color: var(--muted); font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.4rem; }
 /* Filter-tab icons (Nov 5, 2026): Family uses the site icon,
-   Pia/Misha use their anime pictures (34px circles, tight face
-   crop — variant C, user-picked). Anime faces are 96px crops
-   embedded as data URLs — the GitHub snapshot push is text-only,
-   so binary files can't be pushed that way. Letters mode shows
-   P / M / F instead; the setting (html[data-avatar-style]) picks
-   which one is visible, default Photos. */
-.filter .tab-photo { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex: none; }
+   Pia/Misha use their anime pictures. Rounded squares, not
+   circles — variant C, user-picked Nov 5: the tight circular
+   crop clipped the girls' chins, so the photos are looser crops
+   (whole face + margin) in rounded squares, which cut nothing.
+   Anime faces are 96px crops embedded as data URLs — the GitHub
+   snapshot push is text-only, so binary files can't be pushed
+   that way. Letters mode shows P / M / F in circles instead; the
+   setting (html[data-avatar-style]) picks which one is visible,
+   default Photos. */
+.filter .tab-photo { width: 34px; height: 34px; border-radius: 9px; object-fit: cover; flex: none; }
 .filter .tab-icon { width: 34px; height: 34px; border-radius: 7px; flex: none; }
 .filter .tab-letter { width: 34px; height: 34px; border-radius: 50%; display: none; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 1.1rem; flex: none; }
 .filter .tab-letter.pia { background: var(--pia-avatar); }
@@ -84,9 +87,10 @@ html[data-avatar-style="letters"] .tab-letter { display: flex; }
 /* Card avatars follow the same setting: .avatar-letter is the
    P / M / F div, .avatar-photo the anime picture (or the site icon
    for Family). Photos is the default, so letters stay hidden until
-   Letters is picked. */
-.avatar-photo { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex: none; }
-.avatar-photo.family-icon { border-radius: 12px; }
+   Letters is picked. Rounded squares (variant C, Nov 5) — same
+   shape as the Family icon, and a square cuts nothing off the
+   loose face crop. */
+.avatar-photo { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; flex: none; }
 /* .kid-head qualifier is load-bearing: plain .avatar-letter (0,1,0)
    ties with .avatar (0,1,0) and loses to it because .avatar comes
    later in this file, which would show the letter in Photos mode. */
