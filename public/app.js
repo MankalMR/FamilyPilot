@@ -302,7 +302,7 @@ function render() {
   const nextOpen = items.filter((i) => kidVisible(i.child) && i.status === "open" && i.due_date > today).sort((a, b) => a.due_date.localeCompare(b.due_date))[0];
   const scope = filterKid === "all" ? "both kids" : (filterKid === "pia" ? "Pia" : "Misha");
   document.getElementById("today-summary").innerHTML =
-    `<h2>Today at a glance</h2>` +
+    `<h2>Highlights</h2>` +
     `<p>${openToday.length ? `<b>${openToday.length} item${openToday.length > 1 ? "s" : ""} due or overdue</b> for ${scope}.` : `<b>Nothing due today</b> for ${scope}.`}</p>` +
     (showLunch ? `<p>${undecidedToday.length ? `<b>${undecidedToday.length} lunch decision${undecidedToday.length > 1 ? "s" : ""}</b> still undecided for today.` : `<b>Today's lunch is decided.</b>`}</p>` : "") +
     (nextOpen ? `<p>Up next: <b>${esc(nextOpen.title)}, ${fmtDate(nextOpen.due_date)}</b>.</p>` : "");
@@ -329,11 +329,13 @@ function render() {
   // events list below in time order. The summary above stays
   // school-only — calendar events never count toward it.
   document.getElementById("today-calendar-heading").hidden = !showCalendar;
-  document.getElementById("calendar-sync-line").hidden = !showCalendar;
+  // Sync info lives behind the (i) next to Show calendar now — the
+  // line above the calendar cards was noise. Just the sync time,
+  // no "Google Calendar is the source" suffix.
+  document.getElementById("calendar-sync-pop").textContent = lastSynced
+    ? "Calendar synced " + fmtDateTimeET(lastSynced)
+    : "Calendar not synced yet — the next sync will fill this in.";
   if (showCalendar) {
-    document.getElementById("calendar-sync-line").textContent = lastSynced
-      ? "Calendar synced " + fmtDateTimeET(lastSynced) + " · Google Calendar is the source"
-      : "Calendar not synced yet — the next sync will fill this in.";
     const todayCal = calendarEvents.filter((ev) => ev.start_date === today && calVisible(ev))
       .sort((a, b) => (a.start_time || "") < (b.start_time || "") ? -1 : 1);
     document.getElementById("today-calendar").innerHTML =
@@ -822,6 +824,23 @@ document.getElementById("enable-push").addEventListener("click", enableNotificat
 document.getElementById("test-push").addEventListener("click", sendTestPush);
 document.getElementById("disable-push").addEventListener("click", disableNotifications);
 document.getElementById("show-done").addEventListener("change", render);
+// Calendar sync info (user, Nov 5): the (i) next to Show calendar
+// reveals when the mirror last synced; tapping anywhere else
+// closes it again.
+document.getElementById("calendar-sync-info").addEventListener("click", () => {
+  const pop = document.getElementById("calendar-sync-pop");
+  const btn = document.getElementById("calendar-sync-info");
+  pop.hidden = !pop.hidden;
+  btn.setAttribute("aria-expanded", String(!pop.hidden));
+});
+document.addEventListener("click", (e) => {
+  const pop = document.getElementById("calendar-sync-pop");
+  const btn = document.getElementById("calendar-sync-info");
+  if (!pop.hidden && !pop.contains(e.target) && e.target !== btn) {
+    pop.hidden = true;
+    btn.setAttribute("aria-expanded", "false");
+  }
+});
 
 function setFilter(kid) {
   filterKid = kid;

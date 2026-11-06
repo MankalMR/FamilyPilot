@@ -39,8 +39,12 @@
 
     <div class="show-toggles">
       <label class="show-lunch"><input type="checkbox" id="show-lunch" /> Show lunch</label>
-      <label class="show-calendar"><input type="checkbox" id="show-calendar" /> Show calendar</label>
+      <span class="show-calendar-wrap">
+        <label class="show-calendar"><input type="checkbox" id="show-calendar" /> Show calendar</label>
+        <button type="button" id="calendar-sync-info" class="info-btn" aria-label="When was the calendar last synced?" aria-expanded="false">i</button>
+      </span>
     </div>
+    <div id="calendar-sync-pop" class="sync-pop" hidden></div>
     </div>
 
     <p id="status" role="status"></p>
@@ -54,7 +58,6 @@
         <h2 id="today-items-heading">Items due or overdue</h2>
         <div id="today-items"></div>
         <h2 id="today-calendar-heading">Calendar</h2>
-        <p id="calendar-sync-line" class="sub"></p>
         <div id="today-calendar"></div>
       </div>
       <div class="day-band band-cool">
