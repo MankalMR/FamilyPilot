@@ -287,7 +287,9 @@ function itemCard(it) {
 
 function render() {
   const today = etToday();
+  const tomorrow = addDays(today, 1);
   const weekEnd = addDays(today, 13);
+  const showDone = document.getElementById("show-done").checked;
   document.getElementById("today-line").textContent = fmtDate(today) + " (ET)";
   // Keep the persisted toggles in sync with their checkboxes.
   document.getElementById("show-lunch").checked = showLunch;
@@ -315,8 +317,11 @@ function render() {
     return lunchCard(day, k);
   }).join("") || "<p>No kids selected.</p>") : "";
 
+  // Done items for today only show when "Show done items" is on
+  // (they used to live on Next Up's first day — see below).
+  const doneToday = showDone ? items.filter((i) => kidVisible(i.child) && i.status === "done" && i.due_date === today) : [];
   document.getElementById("today-items").innerHTML =
-    openToday.length ? openToday.map(itemCard).join("") : "<p>No open items due today or overdue.</p>";
+    (openToday.length || doneToday.length) ? [...openToday, ...doneToday].map(itemCard).join("") : "<p>No open items due today or overdue.</p>";
 
   // Today's calendar, only when Show calendar is on. School items
   // have no time, so they stay in their block above; timed calendar
@@ -336,10 +341,37 @@ function render() {
     document.getElementById("today-calendar").innerHTML = "";
   }
 
-  // Next 14 days, grouped by day.
-  const showDone = document.getElementById("show-done").checked;
+  // Tomorrow, full cards — the Today tab is now today + tomorrow,
+  // and Next Up starts on the 3rd day, so each day lives in exactly
+  // one tab. Same cards as today, so Mark done, lunch plans and
+  // delete (with Undo) all work inline here. Done items for
+  // tomorrow show only when "Show done items" is on, as above.
+  document.getElementById("tomorrow-heading").textContent = "Tomorrow · " + fmtDate(tomorrow);
+  document.getElementById("tomorrow-lunch-heading").hidden = !showLunch;
+  document.getElementById("tomorrow-kids").innerHTML = showLunch ? (KIDS.filter((k) => kidVisible(k.value)).map((k) => {
+    const day = lunch.find((l) => l.child === k.value && l.date === tomorrow);
+    return lunchCard(day, k);
+  }).join("") || "<p>No kids selected.</p>") : "";
+  const openTomorrow = items.filter((i) => kidVisible(i.child) && i.status === "open" && i.due_date === tomorrow);
+  const doneTomorrow = showDone ? items.filter((i) => kidVisible(i.child) && i.status === "done" && i.due_date === tomorrow) : [];
+  document.getElementById("tomorrow-items").innerHTML =
+    (openTomorrow.length || doneTomorrow.length) ? [...openTomorrow, ...doneTomorrow].map(itemCard).join("") : "<p>No open items due tomorrow.</p>";
+  document.getElementById("tomorrow-calendar-heading").hidden = !showCalendar;
+  if (showCalendar) {
+    const tomorrowCal = calendarEvents.filter((ev) => ev.start_date === tomorrow && calVisible(ev))
+      .sort((a, b) => (a.start_time || "") < (b.start_time || "") ? -1 : 1);
+    document.getElementById("tomorrow-calendar").innerHTML =
+      tomorrowCal.length ? tomorrowCal.map(calendarCard).join("") : "<p>No calendar events tomorrow.</p>";
+  } else {
+    document.getElementById("tomorrow-calendar").innerHTML = "";
+  }
+
+  // From the 3rd day onwards, grouped by day. Today + tomorrow
+  // live on the Today tab now, so this loop starts at day 2 —
+  // and the old overdue-extra on day 0 is gone with it, since
+  // overdue items already show under Items due today or overdue.
   let weekHtml = "";
-  for (let i = 0; i < 14; i++) {
+  for (let i = 2; i < 14; i++) {
     const d = addDays(today, i);
     const dayLunch = !showLunch ? "" : KIDS.filter((k) => kidVisible(k.value)).map((k) => {
       const day = lunch.find((l) => l.child === k.value && l.date === d);
@@ -351,14 +383,12 @@ function render() {
       if (it.status === "done") return showDone;
       return true;
     });
-    // Overdue open items also appear on the first day, so they are not lost.
-    const extra = i === 0 ? items.filter((it) => kidVisible(it.child) && it.status === "open" && it.due_date < today) : [];
-    const dayItemsHtml = [...extra, ...dayItems].map(itemCard).join("");
+    const dayItemsHtml = dayItems.map(itemCard).join("");
     const dayCalHtml = calendarEvents.filter((ev) => ev.start_date === d && calVisible(ev))
       .sort((a, b) => (a.start_time || "") < (b.start_time || "") ? -1 : 1)
       .map(calendarCard).join("");
     if (dayLunch || dayItemsHtml || dayCalHtml) {
-      weekHtml += `<p class="day-head">${fmtDate(d)}${d === today ? " <span>— today</span>" : ""}</p>` + dayLunch + dayItemsHtml + dayCalHtml;
+      weekHtml += `<p class="day-head">${fmtDate(d)}</p>` + dayLunch + dayItemsHtml + dayCalHtml;
     }
   }
   document.getElementById("week-days").innerHTML = weekHtml || "<p>No lunch days or items in this window yet.</p>";
