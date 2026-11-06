@@ -102,14 +102,19 @@ html[data-avatar-style="letters"] .avatar-letter { display: flex; }
    stacked as two full-width cards. */
 .show-toggles { display: flex; gap: 0.6rem; margin: 1rem 0; }
 .show-lunch, .show-calendar { flex: 1; min-width: 0; display: block; background: var(--card); border-radius: 12px; box-shadow: var(--shadow); padding: 0.7rem 0.75rem; margin: 0; font-size: 0.95rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
-.show-calendar-wrap { flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.4rem; }
-/* Sync info (user, Nov 5): the (i) next to Show calendar. The
-   "Calendar synced ..." line used to sit above the calendar
-   cards; it was noise there, so it lives behind this button now
-   and reveals just the sync time. The button sits in its own
-   wrapper next to the label — not inside the <label>, where it
-   would be invalid HTML and would toggle the checkbox. */
-.show-calendar-wrap .info-btn { flex: none; width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--muted); background: transparent; color: var(--muted); font-size: 12px; font-weight: 800; line-height: 1; padding: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+/* The calendar toggle is a <span> card, not a <label>, so the (i)
+   button can sit inside the card's rounded border: a button
+   inside a <label> is invalid HTML and would toggle the
+   checkbox. The card itself toggles the box on click (see
+   app.js), except on the (i) and on the checkbox itself. The
+   text span flexes so the (i) sits at the card's right end. */
+.show-calendar { display: flex; align-items: center; }
+.show-calendar-text { flex: 1; }
+/* Sync info (user, Nov 5): the (i) inside the Show calendar
+   card. The "Calendar synced ..." line used to sit above the
+   calendar cards; it was noise there, so it lives behind this
+   button now and reveals just the sync time. */
+.show-calendar .info-btn { flex: none; width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--muted); background: transparent; color: var(--muted); font-size: 12px; font-weight: 800; line-height: 1; padding: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
 .sync-pop { background: var(--card); border-radius: 10px; box-shadow: var(--shadow); padding: 0.6rem 0.75rem; margin: 0 0 1rem; font-size: 0.9rem; color: var(--muted); }
 .sync-pop[hidden] { display: none; }
 html[data-theme="dark"] .sync-pop { border: 1px solid #3A352E; box-shadow: none; }

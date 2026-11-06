@@ -863,6 +863,17 @@ document.getElementById("show-calendar").addEventListener("change", (e) => {
   localStorage.setItem("family-pilot-show-calendar", showCalendar ? "1" : "0");
   render();
 });
+// The calendar toggle is a <span> card, not a <label>, so the (i)
+// can sit inside its rounded border. Clicking the card toggles
+// the checkbox — except on the (i) itself, and except on the
+// checkbox, which toggles natively (flipping it here too would
+// cancel the tap).
+document.getElementById("show-calendar-card").addEventListener("click", (e) => {
+  const box = document.getElementById("show-calendar");
+  if (e.target === box || e.target.closest("#calendar-sync-info")) return;
+  box.checked = !box.checked;
+  box.dispatchEvent(new Event("change"));
+});
 
 document.getElementById("item-form").addEventListener("submit", async (e) => {
   e.preventDefault();
