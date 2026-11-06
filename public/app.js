@@ -6,9 +6,10 @@
 // ET session does not flip to the next day.
 //
 // Views: Today = summary + today's lunch per kid + items due
-// today or overdue. Next 14 days = days grouped by date, lunch
-// and items together. A day with no lunch row is an empty day;
-// a day with no_school = true is a friendly "No school" card.
+// today or overdue, then a full Tomorrow section (same cards).
+// Next Up = days from the 3rd day onwards, grouped by date,
+// lunch and items together. A day with no lunch row is an empty
+// day; a day with no_school = true is a friendly "No school" card.
 // The kid filter (both / Pia / Misha) applies to both views and
 // to the summary counts. Lunch only.
 
@@ -403,8 +404,8 @@ function showView(name) {
   for (const navId of ["nav-today", "nav-week", "nav-add", "nav-more"]) {
     document.getElementById(navId).classList.toggle("on", navId === navFor[name]);
   }
-  // Kid filter + Show lunch only mean anything on Today / Next 14
-  // days. They did nothing on Add, History, Settings, or Records,
+  // Kid filter + Show lunch only mean anything on Today / Next Up.
+  // They did nothing on Add, History, Settings, or Records,
   // so they are hidden there instead of sitting above an unrelated
   // view. Records has its own Pia/Misha chooser.
   document.getElementById("view-controls").hidden = !(name === "today" || name === "week");
