@@ -162,11 +162,29 @@ function calVisible(ev) {
   if (ev.child === "family") return filterKid === "all";
   return kidVisible(ev.child);
 }
+// Avatar style (approved Nov 5, 2026): per-device Photos / Letters
+// setting, default Photos (anime). Both the letter and the photo
+// are emitted and CSS picks by html[data-avatar-style], so flipping
+// the setting needs no re-render. Photos are the anime face crops
+// (34px circles, tight face crop — variant C, user-picked Nov 5);
+// Family uses the site icon in Photos mode. The anime drawings are
+// used instead of the real photos so no photo of the kids sits in
+// the public repo.
+const PIA_AVATAR = "data:image/jpeg;base64,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";
+const MISHA_AVATAR = "data:image/jpeg;base64,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";
+function kidAvatar(child) {
+  if (child === "family") {
+    return `<div class="avatar avatar-letter">F</div><img class="avatar-photo family-icon" src="/icon.svg" alt="" />`;
+  }
+  const letter = child === "pia" ? "P" : "M";
+  const photo = child === "pia" ? PIA_AVATAR : MISHA_AVATAR;
+  return `<div class="avatar avatar-letter">${letter}</div><img class="avatar-photo" src="${photo}" alt="" />`;
+}
 function calendarCard(ev) {
   const who = ev.child === "family" ? "Family" : ev.child === "pia" ? "Pia" : "Misha";
   const when = ev.all_day ? "All day" : fmtTime(ev.start_time) + (ev.end_time ? " – " + fmtTime(ev.end_time) : "");
   return `<div class="card item-card calendar-card ${esc(ev.child)}">
-    <div class="kid-head"><div class="avatar">${who === "Family" ? "F" : who[0]}</div><div><div class="card-title-row"><span class="title">${esc(ev.title)}</span>${pill("event", "calendar")}</div><span class="meta">${esc(who)} · ${esc(when)}${ev.location ? " · " + esc(ev.location) : ""}${ev.calendar_name ? " · " + esc(ev.calendar_name) : ""}</span></div></div>
+    <div class="kid-head">${kidAvatar(ev.child)}<div><div class="card-title-row"><span class="title">${esc(ev.title)}</span>${pill("event", "calendar")}</div><span class="meta">${esc(who)} · ${esc(when)}${ev.location ? " · " + esc(ev.location) : ""}${ev.calendar_name ? " · " + esc(ev.calendar_name) : ""}</span></div></div>
   </div>`;
 }
 
@@ -176,7 +194,7 @@ function lunchCard(day, kid) {
   }
   if (day.no_school) {
     return `<div class="card lunch-card no-school ${kid.value}">
-      <div class="kid-head"><div class="avatar">${esc(kid.label[0])}</div><div><div class="card-title-row"><span class="title">No school</span>${pill("no_school", "no school")}</div><span class="meta">${esc(kid.label)} · ${esc(kid.school)}</span></div></div>
+      <div class="kid-head">${kidAvatar(kid.value)}<div><div class="card-title-row"><span class="title">No school</span>${pill("no_school", "no school")}</div><span class="meta">${esc(kid.label)} · ${esc(kid.school)}</span></div></div>
       <p>🎉 No lunch needed.</p>
       ${day.note ? `<p class="note">Note: ${esc(day.note)}</p>` : ""}
       <div class="row-actions">
@@ -190,7 +208,7 @@ function lunchCard(day, kid) {
   const full = day.menu_text && day.menu_text.includes("·")
     ? `<button type="button" class="linkbtn" data-expand-menu>Full menu ↓</button><p class="fullmenu">${esc(day.menu_text)}</p>` : "";
   return `<div class="card lunch-card ${kid.value}">
-    <div class="kid-head"><div class="avatar">${esc(kid.label[0])}</div><div><div class="card-title-row"><p class="main-dish">${esc(mainDish)}</p>${pill("lunch", "lunch")}</div><span class="meta">${esc(kid.label)} · ${esc(kid.school)}</span></div></div>
+    <div class="kid-head">${kidAvatar(kid.value)}<div><div class="card-title-row"><p class="main-dish">${esc(mainDish)}</p>${pill("lunch", "lunch")}</div><span class="meta">${esc(kid.label)} · ${esc(kid.school)}</span></div></div>
     ${full}
     ${day.note ? `<p class="note">Note: ${esc(day.note)}</p>` : ""}
     <div class="seg" aria-label="Lunch plan">${planBtns}</div>
@@ -205,7 +223,7 @@ function itemCard(it) {
   const overdue = it.status === "open" && it.due_date < etToday();
   const actor = actorName(it.actor);
   return `<div class="card item-card ${esc(it.child)}${it.status === "done" ? " done" : ""}">
-    <div class="kid-head"><div class="avatar">${esc(it.child === "pia" ? "P" : "M")}</div><div><div class="card-title-row"><span class="title">${esc(it.title)}</span>${pill(it.category, it.category.replaceAll("_", " "))}</div><span class="meta">${esc(it.child === "pia" ? "Pia" : "Misha")} · ${fmtDate(it.due_date)}${it.due_time ? " " + esc(it.due_time) : ""}${overdue ? " · Overdue" : ""}${actor ? " · by " + actor : ""}</span></div></div>
+    <div class="kid-head">${kidAvatar(it.child)}<div><div class="card-title-row"><span class="title">${esc(it.title)}</span>${pill(it.category, it.category.replaceAll("_", " "))}</div><span class="meta">${esc(it.child === "pia" ? "Pia" : "Misha")} · ${fmtDate(it.due_date)}${it.due_time ? " " + esc(it.due_time) : ""}${overdue ? " · Overdue" : ""}${actor ? " · by " + actor : ""}</span></div></div>
     ${it.details ? `<p>${esc(it.details)}</p>` : ""}
     <div class="row-actions">
       <button type="button" data-toggle-item="${it.id}">${it.status === "done" ? "Reopen" : "Mark done"}</button>
@@ -309,7 +327,7 @@ function showView(name) {
   // view. Records has its own Pia/Misha chooser.
   document.getElementById("view-controls").hidden = !(name === "today" || name === "week");
   if (name === "history") loadHistory();
-  if (name === "settings") { loadPushPrefs(); applyTheme(); }
+  if (name === "settings") { loadPushPrefs(); applyTheme(); applyAvatarStyle(); }
   if (name === "records") loadRecords();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -761,6 +779,30 @@ function setTheme(override) {
 document.getElementById("theme-system").addEventListener("click", () => setTheme("system"));
 document.getElementById("theme-light").addEventListener("click", () => setTheme("light"));
 document.getElementById("theme-dark").addEventListener("click", () => setTheme("dark"));
+
+// Avatars: Photos / Letters. Same pattern as the theme — per device
+// (localStorage), not per parent. Default Photos (anime, variant C).
+// The attribute drives both the filter tabs and every card avatar
+// via CSS, so flipping it needs no re-render and no data reload.
+function avatarStyle() {
+  const v = localStorage.getItem("family-pilot-avatar-style");
+  return v === "letters" ? "letters" : "photos";
+}
+function applyAvatarStyle() {
+  const s = avatarStyle();
+  document.documentElement.setAttribute("data-avatar-style", s);
+  for (const k of ["photos", "letters"]) {
+    const btn = document.getElementById("avatar-" + k);
+    if (btn) btn.classList.toggle("on", s === k);
+  }
+}
+function setAvatarStyle(style) {
+  localStorage.setItem("family-pilot-avatar-style", style);
+  applyAvatarStyle();
+}
+document.getElementById("avatar-photos").addEventListener("click", () => setAvatarStyle("photos"));
+document.getElementById("avatar-letters").addEventListener("click", () => setAvatarStyle("letters"));
+applyAvatarStyle();
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
   if (themeOverride() === "system") applyTheme();
 });
